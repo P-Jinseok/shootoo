@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>웹 포트리스: 에볼루션 (Fix)</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css');
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        body {
+            margin: 0;
+            background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
+            color: #f8fafc;
+            font-family: 'Pretendard', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        #gameWrapper {
+            position: relative;
+            background: #020617;
+            border-radius: 24px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.15);
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            touch-action: none;
+        }
+
+        /* ── 고급 글래스모피즘 HUD ── */
+        #uiOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            pointer-events: none;
+        }
+
+        .player-hud {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 14px 20px;
+            border-radius: 16px;
+            width: 250px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .player-hud.active {
+            border-color: rgba(56, 189, 248, 0.8);
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.35), 0 12px 30px rgba(0,0,0,0.5);
+            transform: translateY(-2px);
+        }
+
+        .hud-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .tank-name {
+            font-weight: 800;
+            font-size: 15px;
+            letter-spacing: -0.3px;
+        }
+
+        .tank-angle {
+            font-size: 12px;
+            color: #94a3b8;
+            background: rgba(255,255,255,0.08);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .hp-container {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .hp-fill {
+            height: 100%;
+            width: 100%;
+            transition: width 0.4s ease;
+            border-radius: 5px;
+        }
+
+        /* 중앙 상태창 */
+        #center-hud {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 28px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+        }
+
+        .wind-indicator {
+            font-size: 15px;
+            font-weight: 700;
+            color: #38bdf8;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .power-bar-wrapper {
+            width: 180px;
+            height: 8px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 4px auto 0 auto;
+        }
+
+        .power-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #38bdf8, #f59e0b, #ef4444);
+            border-radius: 4px;
+        }
+
+        /* ── 터치 & 키보드 공용 컨트롤 패널 ── */
+        #touchControls {
+            margin-top: 16px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            padding: 14px 24px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .control-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #334155, #1e293b);
+            color: #f8fafc;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.1s ease;
+        }
+
+        .btn:active, .btn.pressed {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            border-color: #38bdf8;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+            transform: translateY(2px);
+        }
+
+        .btn-fire {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border-color: rgba(255,255,255,0.2);
+            padding: 12px 28px;
+        }
+        .btn-fire:active, .btn-fire.pressed {
+            background: linear-gradient(135deg, #b91c1c, #991b1b);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.7);
+        }
+
+        .divider {
+            width: 1px;
+            height: 35px;
+            background: rgba(255,255,255,0.12);
+        }
+    </style>
+</head>
+<body>
+
+<div id="gameWrapper">
+    <div id="uiOverlay">
+        <!-- P1 HUD -->
+        <div id="p1Hud" class="player-hud active">
+            <div class="hud-header">
+                <span class="tank-name" style="color: #4ade80;">P1 · 헤비 탱크</span>
+                <span class="tank-angle"><span id="p1Angle">45</span>°</span>
+            </div>
+            <div class="hp-container">
+                <div id="p1HpFill" class="hp-fill" style="background: linear-gradient(90deg, #16a34a, #4ade80); width: 100%;"></div>
+            </div>
+        </div>
+
+        <!-- 중앙 HUD -->
+        <div id="center-hud">
+            <div class="wind-indicator">💨 바람: <span id="windText">0</span></div>
+            <div style="font-size: 10px; color: #94a3b8; font-weight: 700; letter-spacing: 1px;">POWER CHARGE</div>
+            <div class="power-bar-wrapper">
+                <div id="powerFill" class="power-fill"></div>
+            </div>
+        </div>
+
+        <!-- P2 HUD -->
+        <div id="p2Hud" class="player-hud">
+            <div class="hud-header">
+                <span class="tank-name" style="color: #f87171;">P2 · 미사일 캐논</span>
+                <span class="tank-angle"><span id="p2Angle">45</span>°</span>
+            </div>
+            <div class="hp-container">
+                <div id="p2HpFill" class="hp-fill" style="background: linear-gradient(90deg, #dc2626, #f87171); width: 100%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas" width="960" height="540"></canvas>
+</div>
+
+<!-- 터치 컨트롤 패널 -->
+<div id="touchControls">
+    <div class="control-group">
+        <button class="btn" id="btnLeft">◀ 이동</button>
+        <button class="btn" id="btnRight">이동 ▶</button>
+    </div>
+    <div class="divider"></div>
+    <div class="control-group">
+        <button class="btn" id="btnUp">각도 ▲</button>
+        <button class="btn" id="btnDown">각도 ▼</button>
+    </div>
+    <div class="divider"></div>
+    <div class="control-group">
+        <button class="btn btn-fire" id="btnFire">🔥 발사 (차지)</button>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+const terrainCanvas = document.createElement('canvas');
+terrainCanvas.width = canvas.width;
+terrainCanvas.height = canvas.height;
+const tCtx = terrainCanvas.getContext('2d');
+
+let currentTurn = 1;
+let wind = Math.floor(Math.random() * 11) - 5;
+let isCharging = false;
+let currentPower = 0;
+let bullet = null;
+let particles = [];
+let gameOver = false;
+let animTimer = 0;
+
+const players = [
+    null,
+    { 
+        id: 1, name: 'HeavyTank', type: 'HEAVY', 
+        x: 170, y: 0, hp: 100, angle: 45, 
+        color: '#22c55e', dark: '#14532d', accent: '#86efac',
+        recoil: 0, radius: 18 
+    },
+    { 
+        id: 2, name: 'MissileCannon', type: 'MISSILE', 
+        x: 790, y: 0, hp: 100, angle: 135, 
+        color: '#ef4444', dark: '#7f1d1d', accent: '#fca5a5',
+        recoil: 0, radius: 17 
+    }
+];
+
+const keys = {};
+
+window.addEventListener('keydown', e => {
+    keys[e.code] = true;
+    if (e.code === 'Space' && !bullet && !isCharging && !gameOver) {
+        startCharging();
+    }
+});
+
+window.addEventListener('keyup', e => {
+    keys[e.code] = false;
+    if (e.code === 'Space' && isCharging) {
+        stopCharging();
+    }
+});
+
+function bindButton(id, code) {
+    const el = document.getElementById(id);
+    const pressOn = () => { keys[code] = true; el.classList.add('pressed'); if(id === 'btnFire' && !bullet && !isCharging && !gameOver) startCharging(); };
+    const pressOff = () => { keys[code] = false; el.classList.remove('pressed'); if(id === 'btnFire' && isCharging) stopCharging(); };
+
+    el.addEventListener('mousedown', pressOn);
+    el.addEventListener('mouseup', pressOff);
+    el.addEventListener('mouseleave', pressOff);
+    el.addEventListener('touchstart', (e) => { e.preventDefault(); pressOn(); });
+    el.addEventListener('touchend', (e) => { e.preventDefault(); pressOff(); });
+}
+
+bindButton('btnLeft', 'KeyA');
+bindButton('btnRight', 'KeyD');
+bindButton('btnUp', 'KeyW');
+bindButton('btnDown', 'KeyS');
+bindButton('btnFire', 'Space');
+
+function startCharging() {
+    isCharging = true;
+    currentPower = 0;
+}
+
+function stopCharging() {
+    isCharging = false;
+    fireBullet();
+}
+
+function initTerrain() {
+    tCtx.fillStyle = '#1e293b';
+    tCtx.beginPath();
+    tCtx.moveTo(0, canvas.height);
+    for (let x = 0; x <= canvas.width; x++) {
+        let y = 370 + Math.sin(x * 0.006) * 50 + Math.cos(x * 0.015) * 30;
+        tCtx.lineTo(x, y);
+    }
+    tCtx.lineTo(canvas.width, canvas.height);
+    tCtx.fill();
+
+    tCtx.strokeStyle = '#059669';
+    tCtx.lineWidth = 10;
+    tCtx.stroke();
+}
+
+function getTerrainY(x) {
+    if (x < 0 || x >= canvas.width) return canvas.height;
+    const imgData = tCtx.getImageData(Math.floor(x), 0, 1, canvas.height).data;
+    for (let y = 0; y < canvas.height; y++) {
+        if (imgData[y * 4 + 3] > 0) return y;
+    }
+    return canvas.height;
+}
+
+function destroyTerrain(cx, cy, radius) {
+    tCtx.globalCompositeOperation = 'destination-out';
+    tCtx.beginPath();
+    tCtx.arc(cx, cy, radius, 0, Math.PI * 2);
+    tCtx.fill();
+    tCtx.globalCompositeOperation = 'source-over';
+}
+
+function drawBackground() {
+    let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grad.addColorStop(0, '#090d16');
+    grad.addColorStop(0.5, '#111827');
+    grad.addColorStop(1, '#1e293b');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.03)';
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, 100, 250, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function drawTank(p) {
+    ctx.save();
+    ctx.translate(p.x, p.y);
+
+    const rad = p.angle * Math.PI / 180;
+    const recoilOffset = p.recoil || 0;
+
+    if (p.type === 'HEAVY') {
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.roundRect(-22, -2, 44, 13, 6);
+        ctx.fill();
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = '#64748b';
+        let wheelOffsetShift = (animTimer * 2) % 10;
+        for(let wx = -14; wx <= 14; wx += 10) {
+            ctx.beginPath();
+            ctx.arc(wx + wheelOffsetShift - 5, 4, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.moveTo(-18, -4);
+        ctx.lineTo(-14, -18);
+        ctx.lineTo(14, -18);
+        ctx.lineTo(18, -4);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = p.dark;
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        const barrelLen = 30 - recoilOffset;
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 8;
+        ctx.lineCap = 'square';
+        ctx.beginPath();
+        ctx.moveTo(0, -12);
+        ctx.lineTo(Math.cos(rad) * barrelLen, -12 - Math.sin(rad) * barrelLen);
+        ctx.stroke();
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillRect(Math.cos(rad) * barrelLen - 3, -12 - Math.sin(rad) * barrelLen - 3, 6, 6);
+
+    } else {
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.roundRect(-20, -2, 40, 12, 6);
+        ctx.fill();
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(0, -6, 15, Math.PI, 0);
+        ctx.fill();
+        ctx.strokeStyle = p.dark;
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        ctx.fillStyle = p.accent;
+        ctx.beginPath();
+        ctx.arc(0, -8, 3 + Math.sin(animTimer * 0.1) * 1.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        const barrelLen = 34 - recoilOffset;
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(0, -6);
+        ctx.lineTo(Math.cos(rad) * barrelLen, -6 - Math.sin(rad) * barrelLen);
+        ctx.stroke();
+    }
+
+    if (isCharging && players[currentTurn] === p) {
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(0, -10);
+        ctx.lineTo(Math.cos(rad) * 60, -10 - Math.sin(rad) * 60);
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    ctx.restore();
+}
+
+function updateGame() {
+    animTimer++;
+
+    players.slice(1).forEach(p => {
+        const groundY = getTerrainY(p.x);
+        if (p.y < groundY) p.y += 3.5;
+        else p.y = groundY;
+
+        if (p.recoil > 0) p.recoil -= 0.5;
+    });
+
+    if (bullet || gameOver) return;
+
+    const cur = players[currentTurn];
+    if (keys['KeyA'] && cur.x > 30) cur.x -= 1.4;
+    if (keys['KeyD'] && cur.x < canvas.width - 30) cur.x += 1.4;
+
+    if (keys['KeyW']) {
+        if (currentTurn === 1) cur.angle = Math.min(cur.angle + 1, 90);
+        else cur.angle = Math.min(cur.angle + 1, 180);
+    }
+    if (keys['KeyS']) {
+        if (currentTurn === 1) cur.angle = Math.max(cur.angle - 1, 0);
+        else cur.angle = Math.max(cur.angle - 1, 90);
+    }
+
+    if (isCharging) {
+        currentPower = Math.min(currentPower + 1.8, 100);
+    }
+}
+
+function fireBullet() {
+    const p = players[currentTurn];
+    const rad = p.angle * Math.PI / 180;
+    const speed = currentPower * 0.25;
+    const len = p.type === 'HEAVY' ? 30 : 34;
+
+    p.recoil = 8;
+
+    bullet = {
+        shooterId: p.id, // 💡 발사한 플레이어 ID 기록 (발사 직후 자기 자신과의 충돌 방지용)
+        age: 0,          // 💡 포탄 생명 주기 카운터
+        x: p.x + Math.cos(rad) * len,
+        y: p.y - (p.type === 'HEAVY' ? 12 : 6) - Math.sin(rad) * len,
+        vx: Math.cos(rad) * speed,
+        vy: -Math.sin(rad) * speed,
+        radius: 5
+    };
+}
+
+function updateBullet() {
+    if (!bullet) return;
+
+    bullet.age++;
+    bullet.vx += wind * 0.0016;
+    bullet.vy += 0.15; // 중력
+    bullet.x += bullet.vx;
+    bullet.y += bullet.vy;
+
+    particles.push({
+        x: bullet.x, y: bullet.y,
+        radius: Math.random() * 3 + 2,
+        alpha: 0.7,
+        color: '#94a3b8'
+    });
+
+    // 화면 밖으로 나가면 턴 종료
+    if (bullet.x < 0 || bullet.x > canvas.width || bullet.y > canvas.height) {
+        endTurn();
+        return;
+    }
+
+    // 지형 충돌
+    const terrainY = getTerrainY(bullet.x);
+    if (bullet.y >= terrainY) {
+        explode(bullet.x, bullet.y);
+        return;
+    }
+
+    // 탱크 피격 판정
+    players.slice(1).forEach(p => {
+        // 💡 발사 직후(age < 12 프레임)에는 포탄이 포신 근처에 있으므로 자기 자신과의 충돌을 무시합니다.
+        if (bullet.shooterId === p.id && bullet.age < 12) return;
+
+        const offsetOffsetY = p.type === 'HEAVY' ? 12 : 6;
+        const dist = Math.hypot(p.x - bullet.x, (p.y - offsetOffsetY) - bullet.y);
+        if (dist < p.radius + bullet.radius) {
+            explode(bullet.x, bullet.y);
+        }
+    });
+}
+
+function explode(x, y) {
+    const explosionRadius = 34;
+    destroyTerrain(x, y, explosionRadius);
+
+    for (let i = 0; i < 35; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 6 + 1;
+        particles.push({
+            x: x, y: y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            radius: Math.random() * 6 + 2,
+            alpha: 1,
+            color: ['#38bdf8', '#f59e0b', '#ef4444', '#ffffff'][Math.floor(Math.random() * 4)]
+        });
+    }
+
+    players.slice(1).forEach(p => {
+        const dist = Math.hypot(p.x - x, p.y - y);
+        if (dist < explosionRadius + p.radius) {
+            const damage = Math.floor((1 - dist / (explosionRadius + p.radius)) * 42);
+            p.hp = Math.max(0, p.hp - damage);
+        }
+    });
+
+    endTurn();
+}
+
+function updateParticles() {
+    for (let i = particles.length - 1; i >= 0; i--) {
+        let p = particles[i];
+        if (p.vx) p.x += p.vx;
+        if (p.vy) p.y += p.vy;
+        p.alpha -= 0.03;
+        if (p.alpha <= 0) particles.splice(i, 1);
+    }
+}
+
+function drawParticles() {
+    particles.forEach(p => {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.alpha);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    });
+}
+
+function endTurn() {
+    bullet = null;
+    currentPower = 0;
+
+    if (players[1].hp <= 0 || players[2].hp <= 0) {
+        gameOver = true;
+        return;
+    }
+
+    currentTurn = currentTurn === 1 ? 2 : 1;
+    wind = Math.floor(Math.random() * 11) - 5;
+
+    document.getElementById('p1Hud').classList.toggle('active', currentTurn === 1);
+    document.getElementById('p2Hud').classList.toggle('active', currentTurn === 2);
+}
+
+function render() {
+    drawBackground();
+    ctx.drawImage(terrainCanvas, 0, 0);
+
+    drawParticles();
+
+    players.slice(1).forEach(p => {
+        if (p.hp > 0) drawTank(p);
+    });
+
+    if (bullet) {
+        ctx.fillStyle = '#38bdf8';
+        ctx.beginPath();
+        ctx.arc(bullet.x, bullet.y, bullet.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+
+    document.getElementById('p1Angle').innerText = players[1].angle;
+    document.getElementById('p2Angle').innerText = players[2].angle;
+    document.getElementById('p1HpFill').style.width = players[1].hp + '%';
+    document.getElementById('p2HpFill').style.width = players[2].hp + '%';
+    
+    document.getElementById('windText').innerText = wind > 0 ? `▶ ${wind}` : wind < 0 ? `◀ ${Math.abs(wind)}` : '0';
+    document.getElementById('powerFill').style.width = currentPower + '%';
+
+    if (gameOver) {
+        ctx.fillStyle = 'rgba(2, 6, 23, 0.9)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = 'bold 36px Pretendard, sans-serif';
+        ctx.textAlign = 'center';
+        const winner = players[1].hp > 0 ? 'P1 (헤비 탱크)' : 'P2 (미사일 캐논)';
+        ctx.fillText(`🏆 ${winner} 최종 승리!`, canvas.width / 2, canvas.height / 2 - 15);
+        
+        ctx.font = '15px Pretendard, sans-serif';
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillText('새로고침 하시면 새 게임이 시작됩니다.', canvas.width / 2, canvas.height / 2 + 25);
+    }
+}
+
+function loop() {
+    updateGame();
+    updateBullet();
+    updateParticles();
+    render();
+    requestAnimationFrame(loop);
+}
+
+initTerrain();
+loop();
+</script>
+</body>
+</html>
