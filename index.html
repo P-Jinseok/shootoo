@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>웹 포트리스: 에볼루션 (Fix)</title>
+    <title>웹 포트리스: 리스폰시브</title>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css');
 
@@ -27,175 +27,198 @@
             overflow: hidden;
         }
 
+        /* ── 반응형 게임 컨테이너 ── */
         #gameWrapper {
             position: relative;
+            width: 100vw;
+            max-width: 960px;
+            aspect-ratio: 960 / 540; /* 16:9 고정 비율 유지 */
             background: #020617;
-            border-radius: 24px;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1);
             overflow: hidden;
+        }
+
+        @media (min-width: 960px) {
+            #gameWrapper {
+                border-radius: 20px;
+            }
         }
 
         canvas {
             display: block;
+            width: 100%;
+            height: 100%;
             touch-action: none;
         }
 
-        /* ── 고급 글래스모피즘 HUD ── */
+        /* ── HUD 오버레이 (퍼센트 기준 레이아웃) ── */
         #uiOverlay {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            padding: 20px 24px;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             pointer-events: none;
+            z-index: 10;
         }
 
         .player-hud {
             background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 14px 20px;
-            border-radius: 16px;
-            width: 250px;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.5);
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 10px 16px;
+            border-radius: 12px;
+            width: 220px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            transition: all 0.3s ease;
         }
 
         .player-hud.active {
             border-color: rgba(56, 189, 248, 0.8);
-            box-shadow: 0 0 25px rgba(56, 189, 248, 0.35), 0 12px 30px rgba(0,0,0,0.5);
-            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
         }
 
         .hud-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .tank-name {
             font-weight: 800;
-            font-size: 15px;
-            letter-spacing: -0.3px;
+            font-size: 14px;
         }
 
         .tank-angle {
-            font-size: 12px;
+            font-size: 11px;
             color: #94a3b8;
             background: rgba(255,255,255,0.08);
-            padding: 3px 8px;
-            border-radius: 6px;
+            padding: 2px 6px;
+            border-radius: 4px;
             font-weight: 600;
         }
 
         .hp-container {
             width: 100%;
-            height: 10px;
+            height: 8px;
             background: rgba(255, 255, 255, 0.08);
-            border-radius: 5px;
+            border-radius: 4px;
             overflow: hidden;
         }
 
         .hp-fill {
             height: 100%;
             width: 100%;
-            transition: width 0.4s ease;
-            border-radius: 5px;
+            transition: width 0.3s ease;
+            border-radius: 4px;
         }
 
-        /* 중앙 상태창 */
         #center-hud {
             background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(16px);
+            backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 12px 28px;
-            border-radius: 16px;
+            padding: 8px 20px;
+            border-radius: 12px;
             text-align: center;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
         }
 
         .wind-indicator {
-            font-size: 15px;
+            font-size: 13px;
             font-weight: 700;
             color: #38bdf8;
-            margin-bottom: 6px;
-            letter-spacing: 0.5px;
+            margin-bottom: 4px;
         }
 
         .power-bar-wrapper {
-            width: 180px;
-            height: 8px;
+            width: 130px;
+            height: 6px;
             background: rgba(255,255,255,0.08);
-            border-radius: 4px;
+            border-radius: 3px;
             overflow: hidden;
-            margin: 4px auto 0 auto;
+            margin: 2px auto 0 auto;
         }
 
         .power-fill {
             height: 100%;
             width: 0%;
             background: linear-gradient(90deg, #38bdf8, #f59e0b, #ef4444);
-            border-radius: 4px;
+            border-radius: 3px;
         }
 
-        /* ── 터치 & 키보드 공용 컨트롤 패널 ── */
+        /* ── 터치 & 키보드 공용 컨트롤 패널 (모바일 화면 맞춤) ── */
         #touchControls {
-            margin-top: 16px;
+            margin-top: 12px;
             display: flex;
-            gap: 16px;
+            gap: 10px;
             align-items: center;
             justify-content: center;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(12px);
-            padding: 14px 24px;
-            border-radius: 20px;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 10px 16px;
+            border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.08);
+            width: 100%;
+            max-width: 960px;
         }
 
         .control-group {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
 
         .btn {
             background: linear-gradient(135deg, #334155, #1e293b);
             color: #f8fafc;
             border: 1px solid rgba(255, 255, 255, 0.12);
-            padding: 12px 18px;
-            border-radius: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             transition: all 0.1s ease;
         }
 
         .btn:active, .btn.pressed {
             background: linear-gradient(135deg, #0284c7, #0369a1);
             border-color: #38bdf8;
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
             transform: translateY(2px);
         }
 
         .btn-fire {
             background: linear-gradient(135deg, #ef4444, #dc2626);
-            border-color: rgba(255,255,255,0.2);
-            padding: 12px 28px;
+            padding: 10px 20px;
         }
         .btn-fire:active, .btn-fire.pressed {
             background: linear-gradient(135deg, #b91c1c, #991b1b);
-            box-shadow: 0 0 20px rgba(239, 68, 68, 0.7);
         }
 
         .divider {
             width: 1px;
-            height: 35px;
+            height: 25px;
             background: rgba(255,255,255,0.12);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                justify-content: flex-start;
+                padding-top: 10px;
+            }
+            .player-hud {
+                width: 130px;
+                padding: 6px 10px;
+            }
+            .tank-name { font-size: 11px; }
+            #center-hud { padding: 6px 12px; }
+            .power-bar-wrapper { width: 90px; }
+            .btn { padding: 8px 10px; font-size: 11px; }
+            .btn-fire { padding: 8px 14px; }
         }
     </style>
 </head>
@@ -217,7 +240,7 @@
         <!-- 중앙 HUD -->
         <div id="center-hud">
             <div class="wind-indicator">💨 바람: <span id="windText">0</span></div>
-            <div style="font-size: 10px; color: #94a3b8; font-weight: 700; letter-spacing: 1px;">POWER CHARGE</div>
+            <div style="font-size: 9px; color: #94a3b8; font-weight: 700;">POWER</div>
             <div class="power-bar-wrapper">
                 <div id="powerFill" class="power-fill"></div>
             </div>
@@ -235,10 +258,11 @@
         </div>
     </div>
 
+    <!-- 내부 가상 해상도를 고정(960x540)하여 물리/좌표 오차 방지 -->
     <canvas id="gameCanvas" width="960" height="540"></canvas>
 </div>
 
-<!-- 터치 컨트롤 패널 -->
+<!-- 컨트롤 패널 -->
 <div id="touchControls">
     <div class="control-group">
         <button class="btn" id="btnLeft">◀ 이동</button>
@@ -251,7 +275,7 @@
     </div>
     <div class="divider"></div>
     <div class="control-group">
-        <button class="btn btn-fire" id="btnFire">🔥 발사 (차지)</button>
+        <button class="btn btn-fire" id="btnFire">🔥 발사</button>
     </div>
 </div>
 
@@ -514,8 +538,8 @@ function fireBullet() {
     p.recoil = 8;
 
     bullet = {
-        shooterId: p.id, // 💡 발사한 플레이어 ID 기록 (발사 직후 자기 자신과의 충돌 방지용)
-        age: 0,          // 💡 포탄 생명 주기 카운터
+        shooterId: p.id,
+        age: 0,
         x: p.x + Math.cos(rad) * len,
         y: p.y - (p.type === 'HEAVY' ? 12 : 6) - Math.sin(rad) * len,
         vx: Math.cos(rad) * speed,
@@ -529,7 +553,7 @@ function updateBullet() {
 
     bullet.age++;
     bullet.vx += wind * 0.0016;
-    bullet.vy += 0.15; // 중력
+    bullet.vy += 0.15;
     bullet.x += bullet.vx;
     bullet.y += bullet.vy;
 
@@ -540,22 +564,18 @@ function updateBullet() {
         color: '#94a3b8'
     });
 
-    // 화면 밖으로 나가면 턴 종료
     if (bullet.x < 0 || bullet.x > canvas.width || bullet.y > canvas.height) {
         endTurn();
         return;
     }
 
-    // 지형 충돌
     const terrainY = getTerrainY(bullet.x);
     if (bullet.y >= terrainY) {
         explode(bullet.x, bullet.y);
         return;
     }
 
-    // 탱크 피격 판정
     players.slice(1).forEach(p => {
-        // 💡 발사 직후(age < 12 프레임)에는 포탄이 포신 근처에 있으므로 자기 자신과의 충돌을 무시합니다.
         if (bullet.shooterId === p.id && bullet.age < 12) return;
 
         const offsetOffsetY = p.type === 'HEAVY' ? 12 : 6;
