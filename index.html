@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>웹 포트리스: 리스폰시브 (Fix)</title>
+    <title>포트리스 2 리마스터 (Fortress II HTML5 Edition)</title>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css');
 
@@ -12,11 +12,12 @@
             user-select: none;
             -webkit-user-select: none;
             -webkit-touch-callout: none;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            margin: 0;
-            background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
+            background: #050b14;
             color: #f8fafc;
             font-family: 'Pretendard', sans-serif;
             display: flex;
@@ -27,20 +28,16 @@
             overflow: hidden;
         }
 
-        #gameWrapper {
+        /* ── 메인 캐비넷 프레임 ── */
+        #gameCabinet {
             position: relative;
             width: 100vw;
-            max-width: 960px;
-            aspect-ratio: 960 / 540;
+            max-width: 1024px;
+            aspect-ratio: 1024 / 576;
             background: #020617;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), 0 0 0 2px rgba(255, 255, 255, 0.1);
             overflow: hidden;
-        }
-
-        @media (min-width: 960px) {
-            #gameWrapper {
-                border-radius: 20px;
-            }
+            border-radius: 12px;
         }
 
         canvas {
@@ -50,12 +47,13 @@
             touch-action: none;
         }
 
+        /* ── 상단 클래식 포트리스 레트로 HUD ── */
         #uiOverlay {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            padding: 15px 20px;
+            padding: 12px 20px;
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
@@ -63,257 +61,358 @@
             z-index: 10;
         }
 
-        .player-hud {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 10px 16px;
-            border-radius: 12px;
+        .hud-card {
+            background: rgba(10, 15, 30, 0.85);
+            backdrop-filter: blur(10px);
+            border: 2px solid #334155;
+            padding: 8px 14px;
+            border-radius: 10px;
             width: 220px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
             transition: all 0.3s ease;
         }
 
-        .player-hud.active {
-            border-color: rgba(56, 189, 248, 0.8);
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+        .hud-card.active {
+            border-color: #f59e0b;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.4), inset 0 0 10px rgba(245, 158, 11, 0.2);
         }
 
-        .hud-header {
+        .hud-title-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
-        }
-
-        .tank-name {
-            font-weight: 800;
-            font-size: 14px;
-        }
-
-        .tank-angle {
-            font-size: 11px;
-            color: #94a3b8;
-            background: rgba(255,255,255,0.08);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: 600;
-        }
-
-        .hp-container {
-            width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .hp-fill {
-            height: 100%;
-            width: 100%;
-            transition: width 0.3s ease;
-            border-radius: 4px;
-        }
-
-        #center-hud {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 8px 20px;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-        }
-
-        .wind-indicator {
-            font-size: 13px;
-            font-weight: 700;
-            color: #38bdf8;
             margin-bottom: 4px;
         }
 
-        .power-bar-wrapper {
-            width: 130px;
-            height: 6px;
-            background: rgba(255,255,255,0.08);
+        .tank-label {
+            font-weight: 800;
+            font-size: 13px;
+            letter-spacing: -0.3px;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        .angle-badge {
+            font-size: 11px;
+            color: #fbbf24;
+            background: rgba(0,0,0,0.6);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .gauge-bar-bg {
+            width: 100%;
+            height: 10px;
+            background: #0f172a;
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.15);
+            position: relative;
+        }
+
+        .gauge-fill {
+            height: 100%;
+            width: 100%;
+            transition: width 0.25s ease-out;
+            border-radius: 4px;
+        }
+
+        /* 스키나 게이지 (이동력 게이지) */
+        .move-gauge-wrapper {
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            color: #94a3b8;
+            font-weight: 700;
+        }
+
+        .move-gauge-bg {
+            flex-grow: 1;
+            height: 5px;
+            background: #0f172a;
             border-radius: 3px;
             overflow: hidden;
-            margin: 2px auto 0 auto;
         }
 
-        .power-fill {
+        .move-gauge-fill {
+            height: 100%;
+            width: 100%;
+            background: #38bdf8;
+            transition: width 0.1s linear;
+        }
+
+        /* 중앙 나침반 및 바람 인디케이터 */
+        #centerHUD {
+            background: rgba(10, 15, 30, 0.9);
+            backdrop-filter: blur(10px);
+            border: 2px solid #334155;
+            padding: 8px 18px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+            min-width: 160px;
+        }
+
+        .wind-title {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .wind-val-box {
+            font-size: 16px;
+            font-weight: 900;
+            color: #38bdf8;
+            margin: 2px 0;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+        }
+
+        .turn-timer {
+            font-size: 18px;
+            font-weight: 900;
+            color: #ef4444;
+            text-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+        }
+
+        /* 하단 메인 슈팅 게이지 (포트리스2 스타일) */
+        #bottomGaugePanel {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50%;
+            max-width: 500px;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(12px);
+            border: 2px solid #475569;
+            padding: 8px 16px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+            z-index: 10;
+        }
+
+        .power-bar-bg {
+            width: 100%;
+            height: 16px;
+            background: #020617;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #64748b;
+            position: relative;
+        }
+
+        .power-bar-fill {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, #38bdf8, #f59e0b, #ef4444);
-            border-radius: 3px;
+            background: linear-gradient(90deg, #22c55e 0%, #eab308 60%, #ef4444 100%);
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.8);
         }
 
-        #touchControls {
-            margin-top: 12px;
+        /* ── 하단 모바일/터치 아케이드 패널 ── */
+        #arcadePad {
+            margin-top: 10px;
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: center;
             justify-content: center;
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(10px);
-            padding: 10px 16px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            padding: 8px 16px;
             border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            width: 100%;
-            max-width: 960px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100vw;
+            max-width: 1024px;
         }
 
-        .control-group {
-            display: flex;
-            gap: 6px;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #334155, #1e293b);
+        .pad-btn {
+            background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
             color: #f8fafc;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            padding: 10px 14px;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 13px;
+            border: 1px solid #475569;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 12px;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: all 0.1s ease;
+            box-shadow: 0 4px 0 #0f172a;
+            transition: all 0.05s ease;
         }
 
-        .btn:active, .btn.pressed {
-            background: linear-gradient(135deg, #0284c7, #0369a1);
+        .pad-btn:active, .pad-btn.pressed {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #0f172a;
+            background: #0284c7;
             border-color: #38bdf8;
-            transform: translateY(2px);
         }
 
-        .btn-fire {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            padding: 10px 20px;
-        }
-        .btn-fire:active, .btn-fire.pressed {
-            background: linear-gradient(135deg, #b91c1c, #991b1b);
+        .fire-pad-btn {
+            background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 4px 0 #7f1d1d;
+            border-color: #fca5a5;
+            padding: 8px 24px;
         }
 
-        .divider {
-            width: 1px;
-            height: 25px;
-            background: rgba(255,255,255,0.12);
+        .fire-pad-btn:active, .fire-pad-btn.pressed {
+            box-shadow: 0 1px 0 #7f1d1d;
+            background: #b91c1c;
+        }
+
+        /* 포탄 선택 토글 버튼 */
+        .weapon-btn {
+            background: #1e293b;
+            border: 1px solid #64748b;
+            color: #94a3b8;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .weapon-btn.active {
+            background: #d97706;
+            color: #fff;
+            border-color: #fef08a;
+            box-shadow: 0 0 10px rgba(217, 119, 6, 0.6);
         }
 
         @media (max-width: 768px) {
-            body {
-                justify-content: flex-start;
-                padding-top: 10px;
-            }
-            .player-hud {
-                width: 130px;
-                padding: 6px 10px;
-            }
-            .tank-name { font-size: 11px; }
-            #center-hud { padding: 6px 12px; }
-            .power-bar-wrapper { width: 90px; }
-            .btn { padding: 8px 10px; font-size: 11px; }
-            .btn-fire { padding: 8px 14px; }
+            .hud-card { width: 130px; padding: 6px; }
+            .tank-label { font-size: 11px; }
+            #centerHUD { min-width: 100px; padding: 4px 10px; }
+            #bottomGaugePanel { width: 70%; }
+            .pad-btn { padding: 6px 10px; font-size: 10px; }
         }
     </style>
 </head>
 <body>
 
-<div id="gameWrapper">
+<div id="gameCabinet">
+    <!-- 레트로 오버레이 HUD -->
     <div id="uiOverlay">
-        <!-- P1 HUD -->
-        <div id="p1Hud" class="player-hud active">
-            <div class="hud-header">
-                <span class="tank-name" style="color: #4ade80;">P1 · 헤비 탱크</span>
-                <span class="tank-angle"><span id="p1Angle">45</span>°</span>
+        <!-- Player 1 -->
+        <div id="p1Card" class="hud-card active">
+            <div class="hud-title-row">
+                <span class="tank-label" style="color: #4ade80;">P1 · 탱크 (Tank)</span>
+                <span class="angle-badge"><span id="p1Angle">45</span>°</span>
             </div>
-            <div class="hp-container">
-                <div id="p1HpFill" class="hp-fill" style="background: linear-gradient(90deg, #16a34a, #4ade80); width: 100%;"></div>
+            <div class="gauge-bar-bg">
+                <div id="p1HpFill" class="gauge-fill" style="background: linear-gradient(90deg, #15803d, #4ade80); width: 100%;"></div>
             </div>
-        </div>
-
-        <!-- 중앙 HUD -->
-        <div id="center-hud">
-            <div class="wind-indicator">💨 바람: <span id="windText">0</span></div>
-            <div style="font-size: 9px; color: #94a3b8; font-weight: 700;">POWER</div>
-            <div class="power-bar-wrapper">
-                <div id="powerFill" class="power-fill"></div>
+            <div class="move-gauge-wrapper">
+                <span>MOVE</span>
+                <div class="move-gauge-bg"><div id="p1MoveFill" class="move-gauge-fill"></div></div>
             </div>
         </div>
 
-        <!-- P2 HUD -->
-        <div id="p2Hud" class="player-hud">
-            <div class="hud-header">
-                <span class="tank-name" style="color: #f87171;">P2 · 미사일 캐논</span>
-                <span class="tank-angle"><span id="p2Angle">45</span>°</span>
+        <!-- Center HUD (Wind & Turn Timer) -->
+        <div id="centerHUD">
+            <div class="wind-title">WIND SPEED</div>
+            <div id="windBox" class="wind-val-box">◀ 0</div>
+            <div id="turnTimer" class="turn-timer">20</div>
+        </div>
+
+        <!-- Player 2 -->
+        <div id="p2Card" class="hud-card">
+            <div class="hud-title-row">
+                <span class="tank-label" style="color: #f87171;">P2 · 캐논 (Cannon)</span>
+                <span class="angle-badge"><span id="p2Angle">45</span>°</span>
             </div>
-            <div class="hp-container">
-                <div id="p2HpFill" class="hp-fill" style="background: linear-gradient(90deg, #dc2626, #f87171); width: 100%;"></div>
+            <div class="gauge-bar-bg">
+                <div id="p2HpFill" class="gauge-fill" style="background: linear-gradient(90deg, #b91c1c, #f87171); width: 100%;"></div>
+            </div>
+            <div class="move-gauge-wrapper">
+                <span>MOVE</span>
+                <div class="move-gauge-bg"><div id="p2MoveFill" class="move-gauge-fill"></div></div>
             </div>
         </div>
     </div>
 
-    <canvas id="gameCanvas" width="960" height="540"></canvas>
+    <!-- 메인 슈팅 파워 게이지 -->
+    <div id="bottomGaugePanel">
+        <div style="display: flex; justify-content: space-between; font-size: 10px; color: #cbd5e1; font-weight: 800; margin-bottom: 3px;">
+            <span>FIRE POWER</span>
+            <span>무기: <span id="weaponLabel" style="color: #f59e0b;">일반탄 (1탄)</span></span>
+        </div>
+        <div class="power-bar-bg">
+            <div id="powerGauge" class="power-bar-fill"></div>
+        </div>
+    </div>
+
+    <!-- 게임 메인 캔버스 (포트리스2 밸리 맵 1024x576) -->
+    <canvas id="gameCanvas" width="1024" height="576"></canvas>
 </div>
 
-<!-- 컨트롤 패널 -->
-<div id="touchControls">
-    <div class="control-group">
-        <button class="btn" id="btnLeft">◀ 이동</button>
-        <button class="btn" id="btnRight">이동 ▶</button>
+<!-- 아케이드 컨트롤 패널 -->
+<div id="arcadePad">
+    <div style="display: flex; gap: 4px;">
+        <button class="pad-btn" id="btnLeft">◀ 이동</button>
+        <button class="pad-btn" id="btnRight">이동 ▶</button>
     </div>
-    <div class="divider"></div>
-    <div class="control-group">
-        <button class="btn" id="btnUp">각도 ▲</button>
-        <button class="btn" id="btnDown">각도 ▼</button>
+    <div style="width: 1px; height: 20px; background: rgba(255,255,255,0.15);"></div>
+    <div style="display: flex; gap: 4px;">
+        <button class="pad-btn" id="btnUp">▲ 각도</button>
+        <button class="pad-btn" id="btnDown">각도 ▼</button>
     </div>
-    <div class="divider"></div>
-    <div class="control-group">
-        <button class="btn btn-fire" id="btnFire">🔥 발사</button>
+    <div style="width: 1px; height: 20px; background: rgba(255,255,255,0.15);"></div>
+    <div style="display: flex; gap: 4px;">
+        <button class="weapon-btn active" id="btnW1">1탄 (일반)</button>
+        <button class="weapon-btn" id="btnW2">2탄 (특수)</button>
     </div>
+    <div style="width: 1px; height: 20px; background: rgba(255,255,255,0.15);"></div>
+    <button class="pad-btn fire-pad-btn" id="btnFire">🔥 발사 (SPACE)</button>
 </div>
 
 <script>
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// 지형 비트맵 오프스크린 캔버스
 const terrainCanvas = document.createElement('canvas');
 terrainCanvas.width = canvas.width;
 terrainCanvas.height = canvas.height;
 const tCtx = terrainCanvas.getContext('2d');
 
-let currentTurn = 1;
-let wind = Math.floor(Math.random() * 11) - 5;
+// 글로벌 게임 엔진 상태
+let currentTurn = 1; // 1: P1(Tank), 2: P2(Cannon)
+let wind = Math.floor(Math.random() * 15) - 7; // -7 ~ +7
 let isCharging = false;
 let currentPower = 0;
-let bullet = null;
+let bullets = [];
 let particles = [];
 let gameOver = false;
-let animTimer = 0;
+let animFrame = 0;
+let turnTimeLeft = 20;
+let turnTimerInterval = null;
 
+// 포트리스2 스펙에 맞춘 Tanks 설정
 const players = [
     null,
-    { 
-        id: 1, name: 'HeavyTank', type: 'HEAVY', 
-        x: 170, y: 0, hp: 100, angle: 45, 
-        color: '#22c55e', dark: '#14532d', accent: '#86efac',
-        recoil: 0, radius: 18 
+    {
+        id: 1, name: '탱크 (Tank)', type: 'TANK',
+        x: 180, y: 0, hp: 100, maxHp: 100, angle: 45, weapon: 1,
+        moveEnergy: 100, maxMoveEnergy: 100,
+        color: '#22c55e', darkColor: '#14532d', recoil: 0
     },
-    { 
-        id: 2, name: 'MissileCannon', type: 'MISSILE', 
-        x: 790, y: 0, hp: 100, angle: 45, // P2 내부 각도 기준 통일 (0~90도)
-        color: '#ef4444', dark: '#7f1d1d', accent: '#fca5a5',
-        recoil: 0, radius: 17 
+    {
+        id: 2, name: '캐논 (Cannon)', type: 'CANNON',
+        x: 840, y: 0, hp: 100, maxHp: 100, angle: 45, weapon: 1,
+        moveEnergy: 100, maxMoveEnergy: 100,
+        color: '#ef4444', darkColor: '#7f1d1d', recoil: 0
     }
 ];
 
 const keys = {};
 
+// 키보드 컨트롤
 window.addEventListener('keydown', e => {
     keys[e.code] = true;
-    if (e.code === 'Space' && !bullet && !isCharging && !gameOver) {
+    if (e.code === 'Digit1') setWeapon(1);
+    if (e.code === 'Digit2') setWeapon(2);
+    if (e.code === 'Space' && bullets.length === 0 && !isCharging && !gameOver) {
         startCharging();
     }
 });
@@ -325,23 +424,41 @@ window.addEventListener('keyup', e => {
     }
 });
 
-function bindButton(id, code) {
+// 패드 버튼 연동
+function bindBtn(id, code) {
     const el = document.getElementById(id);
-    const pressOn = () => { keys[code] = true; el.classList.add('pressed'); if(id === 'btnFire' && !bullet && !isCharging && !gameOver) startCharging(); };
-    const pressOff = () => { keys[code] = false; el.classList.remove('pressed'); if(id === 'btnFire' && isCharging) stopCharging(); };
-
-    el.addEventListener('mousedown', pressOn);
-    el.addEventListener('mouseup', pressOff);
-    el.addEventListener('mouseleave', pressOff);
-    el.addEventListener('touchstart', (e) => { e.preventDefault(); pressOn(); });
-    el.addEventListener('touchend', (e) => { e.preventDefault(); pressOff(); });
+    const press = () => {
+        keys[code] = true;
+        el.classList.add('pressed');
+        if (id === 'btnFire' && bullets.length === 0 && !isCharging && !gameOver) startCharging();
+    };
+    const release = () => {
+        keys[code] = false;
+        el.classList.remove('pressed');
+        if (id === 'btnFire' && isCharging) stopCharging();
+    };
+    el.addEventListener('mousedown', press);
+    el.addEventListener('mouseup', release);
+    el.addEventListener('mouseleave', release);
+    el.addEventListener('touchstart', (e) => { e.preventDefault(); press(); });
+    el.addEventListener('touchend', (e) => { e.preventDefault(); release(); });
 }
 
-bindButton('btnLeft', 'KeyA');
-bindButton('btnRight', 'KeyD');
-bindButton('btnUp', 'KeyW');
-bindButton('btnDown', 'KeyS');
-bindButton('btnFire', 'Space');
+bindBtn('btnLeft', 'KeyA');
+bindBtn('btnRight', 'KeyD');
+bindBtn('btnUp', 'KeyW');
+bindBtn('btnDown', 'KeyS');
+bindBtn('btnFire', 'Space');
+
+document.getElementById('btnW1').onclick = () => setWeapon(1);
+document.getElementById('btnW2').onclick = () => setWeapon(2);
+
+function setWeapon(num) {
+    players[currentTurn].weapon = num;
+    document.getElementById('btnW1').classList.toggle('active', num === 1);
+    document.getElementById('btnW2').classList.toggle('active', num === 2);
+    document.getElementById('weaponLabel').innerText = num === 1 ? '일반탄 (1탄)' : '특수탄 (2탄)';
+}
 
 function startCharging() {
     isCharging = true;
@@ -350,22 +467,37 @@ function startCharging() {
 
 function stopCharging() {
     isCharging = false;
-    fireBullet();
+    fireWeapon();
 }
 
-function initTerrain() {
-    tCtx.fillStyle = '#1e293b';
+/* ── 1. 클래식 '밸리(Valley)' 맵 지형 생성 ── */
+function initValleyMap() {
+    tCtx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // 암석/흙 레이어
+    tCtx.fillStyle = '#64748b';
     tCtx.beginPath();
     tCtx.moveTo(0, canvas.height);
+
+    // 포트리스2 밸리 맵 독특한 V자 및 언덕 곡선
     for (let x = 0; x <= canvas.width; x++) {
-        let y = 370 + Math.sin(x * 0.006) * 50 + Math.cos(x * 0.015) * 30;
+        let y = 380 + Math.sin(x * 0.005) * 60 + Math.cos(x * 0.012) * 40;
+        // 중앙 계곡 골짜기 형성
+        if (x > 380 && x < 640) {
+            y += Math.sin((x - 380) / 260 * Math.PI) * 70;
+        }
         tCtx.lineTo(x, y);
     }
     tCtx.lineTo(canvas.width, canvas.height);
     tCtx.fill();
 
-    tCtx.strokeStyle = '#059669';
-    tCtx.lineWidth = 10;
+    // 상단 푸른 잔디 레이어
+    tCtx.strokeStyle = '#22c55e';
+    tCtx.lineWidth = 12;
+    tCtx.stroke();
+
+    tCtx.strokeStyle = '#15803d';
+    tCtx.lineWidth = 4;
     tCtx.stroke();
 }
 
@@ -386,112 +518,137 @@ function destroyTerrain(cx, cy, radius) {
     tCtx.globalCompositeOperation = 'source-over';
 }
 
+/* ── 2. 배경 (하늘, 구름, 먼 산) 렌더링 ── */
 function drawBackground() {
-    let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    grad.addColorStop(0, '#090d16');
-    grad.addColorStop(0.5, '#111827');
-    grad.addColorStop(1, '#1e293b');
-    ctx.fillStyle = grad;
+    // 밸리 맵 특유의 맑은 하늘 그라데이션
+    let skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    skyGrad.addColorStop(0, '#0284c7');
+    skyGrad.addColorStop(0.6, '#38bdf8');
+    skyGrad.addColorStop(1, '#bae6fd');
+    ctx.fillStyle = skyGrad;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = 'rgba(56, 189, 248, 0.03)';
+    // 먼 산 (원경)
+    ctx.fillStyle = 'rgba(71, 85, 105, 0.4)';
     ctx.beginPath();
-    ctx.arc(canvas.width / 2, 100, 250, 0, Math.PI * 2);
+    ctx.moveTo(0, canvas.height);
+    for (let x = 0; x <= canvas.width; x += 20) {
+        ctx.lineTo(x, 240 + Math.sin(x * 0.003) * 80);
+    }
+    ctx.lineTo(canvas.width, canvas.height);
     ctx.fill();
+
+    // 흐르는 입체 구름
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+    const cloudPositions = [
+        { x: (100 + animFrame * 0.2) % (canvas.width + 100) - 50, y: 70, s: 1 },
+        { x: (500 + animFrame * 0.15) % (canvas.width + 100) - 50, y: 110, s: 1.3 },
+        { x: (850 + animFrame * 0.25) % (canvas.width + 100) - 50, y: 80, s: 0.9 }
+    ];
+    cloudPositions.forEach(c => {
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, 25 * c.s, 0, Math.PI * 2);
+        ctx.arc(c.x + 20 * c.s, c.y - 12 * c.s, 20 * c.s, 0, Math.PI * 2);
+        ctx.arc(c.x + 40 * c.s, c.y, 22 * c.s, 0, Math.PI * 2);
+        ctx.fill();
+    });
 }
 
+/* ── 3. 도트/일러스트 스타일 클래식 포트리스2 탱크 렌더링 ── */
 function drawTank(p) {
     ctx.save();
     ctx.translate(p.x, p.y);
 
-    // P2는 왼쪽을 바라보므로 각도 계산 시 좌우 반전 반영 (0~90도가 위를 향하도록)
-    let renderAngle = p.angle;
-    if (p.id === 2) {
-        ctx.scale(-1, 1); // 좌우 반전
-    }
-    const rad = renderAngle * Math.PI / 180;
-    const recoilOffset = p.recoil || 0;
+    let isP2 = (p.id === 2);
+    if (isP2) ctx.scale(-1, 1); // P2 좌우 반전
 
-    if (p.type === 'HEAVY') {
-        ctx.fillStyle = '#0f172a';
+    const rad = p.angle * Math.PI / 180;
+    const recoil = p.recoil || 0;
+
+    if (p.type === 'TANK') {
+        // [클래식 탱크 - 정통 바디]
+        // 캐터필러 바퀴
+        ctx.fillStyle = '#1e293b';
         ctx.beginPath();
-        ctx.roundRect(-22, -2, 44, 13, 6);
+        ctx.roundRect(-20, -3, 40, 11, 5);
         ctx.fill();
-        ctx.strokeStyle = '#334155';
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 1.5;
         ctx.stroke();
 
-        ctx.fillStyle = '#64748b';
-        let wheelOffsetShift = (animTimer * 2) % 10;
-        for(let wx = -14; wx <= 14; wx += 10) {
+        // 바퀴 휠 회전
+        ctx.fillStyle = '#94a3b8';
+        for(let wx = -12; wx <= 12; wx += 8) {
             ctx.beginPath();
-            ctx.arc(wx + wheelOffsetShift - 5, 4, 3, 0, Math.PI * 2);
+            ctx.arc(wx, 2, 2.5, 0, Math.PI * 2);
             ctx.fill();
         }
 
-        ctx.fillStyle = p.color;
+        // 탱크 메인 그린 바디
+        ctx.fillStyle = '#22c55e';
         ctx.beginPath();
-        ctx.moveTo(-18, -4);
-        ctx.lineTo(-14, -18);
-        ctx.lineTo(14, -18);
-        ctx.lineTo(18, -4);
+        ctx.moveTo(-16, -4);
+        ctx.lineTo(-12, -16);
+        ctx.lineTo(12, -16);
+        ctx.lineTo(16, -4);
         ctx.closePath();
         ctx.fill();
-        ctx.strokeStyle = p.dark;
-        ctx.lineWidth = 2.5;
-        ctx.stroke();
-
-        const barrelLen = 30 - recoilOffset;
-        ctx.strokeStyle = '#475569';
-        ctx.lineWidth = 8;
-        ctx.lineCap = 'square';
-        ctx.beginPath();
-        ctx.moveTo(0, -12);
-        ctx.lineTo(Math.cos(rad) * barrelLen, -12 - Math.sin(rad) * barrelLen);
-        ctx.stroke();
-
-        ctx.fillStyle = '#94a3b8';
-        ctx.fillRect(Math.cos(rad) * barrelLen - 3, -12 - Math.sin(rad) * barrelLen - 3, 6, 6);
-
-    } else {
-        ctx.fillStyle = '#0f172a';
-        ctx.beginPath();
-        ctx.roundRect(-20, -2, 40, 12, 6);
-        ctx.fill();
-        ctx.strokeStyle = '#475569';
+        ctx.strokeStyle = '#14532d';
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(0, -6, 15, Math.PI, 0);
-        ctx.fill();
-        ctx.strokeStyle = p.dark;
-        ctx.lineWidth = 2.5;
-        ctx.stroke();
-
-        ctx.fillStyle = p.accent;
-        ctx.beginPath();
-        ctx.arc(0, -8, 3 + Math.sin(animTimer * 0.1) * 1.5, 0, Math.PI * 2);
-        ctx.fill();
-
-        const barrelLen = 34 - recoilOffset;
+        // 포신
+        const bLen = 28 - recoil;
         ctx.strokeStyle = '#334155';
-        ctx.lineWidth = 5;
+        ctx.lineWidth = 7;
         ctx.lineCap = 'round';
         ctx.beginPath();
-        ctx.moveTo(0, -6);
-        ctx.lineTo(Math.cos(rad) * barrelLen, -6 - Math.sin(rad) * barrelLen);
+        ctx.moveTo(0, -11);
+        ctx.lineTo(Math.cos(rad) * bLen, -11 - Math.sin(rad) * bLen);
+        ctx.stroke();
+
+    } else {
+        // [캐논 탱크 - 포트리스2 시그니처 붉은 캐논]
+        // 슬림 타이어
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.roundRect(-18, -2, 36, 10, 4);
+        ctx.fill();
+
+        // 캐논 붉은 돔 차체
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.arc(0, -5, 14, Math.PI, 0);
+        ctx.fill();
+        ctx.strokeStyle = '#7f1d1d';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // 노란 해치
+        ctx.fillStyle = '#fef08a';
+        ctx.beginPath();
+        ctx.arc(0, -7, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 롱 캐논 포신
+        const bLen = 34 - recoil;
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 5;
+        ctx.lineCap = 'square';
+        ctx.beginPath();
+        ctx.moveTo(0, -5);
+        ctx.lineTo(Math.cos(rad) * bLen, -5 - Math.sin(rad) * bLen);
         ctx.stroke();
     }
 
-    if (isCharging && players[currentTurn] === p) {
-        ctx.strokeStyle = '#38bdf8';
-        ctx.lineWidth = 2;
-        ctx.setLineDash([4, 4]);
+    // 포탄 조준점 보조 가이드라인
+    if (players[currentTurn] === p && !bullets.length) {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([3, 3]);
         ctx.beginPath();
         ctx.moveTo(0, -10);
-        ctx.lineTo(Math.cos(rad) * 60, -10 - Math.sin(rad) * 60);
+        ctx.lineTo(Math.cos(rad) * 50, -10 - Math.sin(rad) * 50);
         ctx.stroke();
         ctx.setLineDash([]);
     }
@@ -499,121 +656,157 @@ function drawTank(p) {
     ctx.restore();
 }
 
+/* ── 4. 게임 물리 연산 및 업데이트 ── */
 function updateGame() {
-    animTimer++;
+    animFrame++;
 
+    // 탱크 중력 적용
     players.slice(1).forEach(p => {
         const groundY = getTerrainY(p.x);
-        if (p.y < groundY) p.y += 3.5;
+        if (p.y < groundY) p.y += 3;
         else p.y = groundY;
 
         if (p.recoil > 0) p.recoil -= 0.5;
     });
 
-    if (bullet || gameOver) return;
+    if (bullets.length > 0 || gameOver) return;
 
     const cur = players[currentTurn];
-    if (keys['KeyA'] && cur.x > 30) cur.x -= 1.4;
-    if (keys['KeyD'] && cur.x < canvas.width - 30) cur.x += 1.4;
 
-    // 각도 조절 (W: 각도 증가 / S: 각도 감소)
-    if (keys['KeyW']) {
-        cur.angle = Math.min(cur.angle + 1, 90);
+    // 이동 (A/D) & 스키나(이동력) 게이지 차감
+    if (keys['KeyA'] && cur.x > 25 && cur.moveEnergy > 0) {
+        cur.x -= 1.2;
+        cur.moveEnergy = Math.max(0, cur.moveEnergy - 0.4);
     }
-    if (keys['KeyS']) {
-        cur.angle = Math.max(cur.angle - 1, 0);
+    if (keys['KeyD'] && cur.x < canvas.width - 25 && cur.moveEnergy > 0) {
+        cur.x += 1.2;
+        cur.moveEnergy = Math.max(0, cur.moveEnergy - 0.4);
     }
 
+    // 각도 조절 (W/S) - 0~90도 직관적 통일
+    if (keys['KeyW']) cur.angle = Math.min(cur.angle + 0.8, 90);
+    if (keys['KeyS']) cur.angle = Math.max(cur.angle - 0.8, 0);
+
+    // 파워 차징 (속도 조절 적용)
     if (isCharging) {
-        // 💡 샷 게이지 올라가는 속도 기존보다 부드럽고 느리게 조정 (1.8 -> 0.9)
-        currentPower = Math.min(currentPower + 0.9, 100);
+        currentPower = Math.min(currentPower + 0.85, 100);
     }
 }
 
-function fireBullet() {
+/* ── 5. 포트리스2 발사 시스템 (3연사 캐논탄 구현) ── */
+function fireWeapon() {
     const p = players[currentTurn];
-    // P2는 왼쪽을 향하므로 발사 각도 벡터 계산 시 반전 적용
     const actualAngleRad = (p.id === 2 ? (180 - p.angle) : p.angle) * Math.PI / 180;
-    const speed = currentPower * 0.25;
-    const len = p.type === 'HEAVY' ? 30 : 34;
+    const speed = currentPower * 0.26;
+    const barrelLen = p.type === 'TANK' ? 28 : 34;
 
     p.recoil = 8;
 
-    bullet = {
-        shooterId: p.id,
-        age: 0,
-        x: p.x + Math.cos(actualAngleRad) * len,
-        y: p.y - (p.type === 'HEAVY' ? 12 : 6) - Math.sin(actualAngleRad) * len,
-        vx: Math.cos(actualAngleRad) * speed,
-        vy: -Math.sin(actualAngleRad) * speed,
-        radius: 5
-    };
-}
-
-function updateBullet() {
-    if (!bullet) return;
-
-    bullet.age++;
-    bullet.vx += wind * 0.0016;
-    bullet.vy += 0.15;
-    bullet.x += bullet.vx;
-    bullet.y += bullet.vy;
-
-    particles.push({
-        x: bullet.x, y: bullet.y,
-        radius: Math.random() * 3 + 2,
-        alpha: 0.7,
-        color: '#94a3b8'
-    });
-
-    if (bullet.x < 0 || bullet.x > canvas.width || bullet.y > canvas.height) {
-        endTurn();
-        return;
-    }
-
-    const terrainY = getTerrainY(bullet.x);
-    if (bullet.y >= terrainY) {
-        explode(bullet.x, bullet.y);
-        return;
-    }
-
-    players.slice(1).forEach(p => {
-        if (bullet.shooterId === p.id && bullet.age < 12) return;
-
-        const offsetOffsetY = p.type === 'HEAVY' ? 12 : 6;
-        const dist = Math.hypot(p.x - bullet.x, (p.y - offsetOffsetY) - bullet.y);
-        if (dist < p.radius + bullet.radius) {
-            explode(bullet.x, bullet.y);
+    // 탱크 2탄 = 3연사 미사일 (포트리스2 특수탄)
+    if (p.weapon === 2 && p.type === 'TANK') {
+        for (let i = 0; i < 3; i++) {
+            setTimeout(() => {
+                bullets.push({
+                    shooterId: p.id, age: 0, type: 'MULTI',
+                    x: p.x + Math.cos(actualAngleRad) * barrelLen,
+                    y: p.y - 10 - Math.sin(actualAngleRad) * barrelLen,
+                    vx: Math.cos(actualAngleRad) * (speed * (1 + (i - 1) * 0.04)),
+                    vy: -Math.sin(actualAngleRad) * (speed * (1 + (i - 1) * 0.04)),
+                    radius: 4
+                });
+            }, i * 150);
         }
-    });
+    } else {
+        // 일반 1탄 또는 캐논 빨간포탄
+        bullets.push({
+            shooterId: p.id, age: 0, type: p.weapon === 2 ? 'CANNON_RED' : 'NORMAL',
+            x: p.x + Math.cos(actualAngleRad) * barrelLen,
+            y: p.y - 10 - Math.sin(actualAngleRad) * barrelLen,
+            vx: Math.cos(actualAngleRad) * speed,
+            vy: -Math.sin(actualAngleRad) * speed,
+            radius: p.weapon === 2 ? 6 : 4
+        });
+    }
 }
 
-function explode(x, y) {
-    const explosionRadius = 34;
+/* ── 6. 포탄 탄도학 및 충돌 판정 ── */
+function updateBullets() {
+    for (let i = bullets.length - 1; i >= 0; i--) {
+        let b = bullets[i];
+        b.age++;
+        b.vx += wind * 0.0015; // 바람 영향을 받는 가속도
+        b.vy += 0.14;          // 중력 가속도
+
+        b.x += b.vx;
+        b.y += b.vy;
+
+        // 포탄 연기 이펙트
+        particles.push({
+            x: b.x, y: b.y, radius: Math.random() * 2.5 + 1.5,
+            alpha: 0.7, color: b.type === 'CANNON_RED' ? '#ef4444' : '#cbd5e1'
+        });
+
+        // 화면 이탈
+        if (b.x < 0 || b.x > canvas.width || b.y > canvas.height) {
+            bullets.splice(i, 1);
+            if (bullets.length === 0) endTurn();
+            continue;
+        }
+
+        // 지형 충돌 검사
+        const terrainY = getTerrainY(b.x);
+        if (b.y >= terrainY) {
+            explode(b.x, b.y, b.type);
+            bullets.splice(i, 1);
+            if (bullets.length === 0) endTurn();
+            continue;
+        }
+
+        // 탱크 충돌 검사
+        let hit = false;
+        players.slice(1).forEach(p => {
+            if (b.shooterId === p.id && b.age < 10) return; // 자가 충돌 방지
+
+            const dist = Math.hypot(p.x - b.x, (p.y - 8) - b.y);
+            if (dist < 18 + b.radius) {
+                hit = true;
+            }
+        });
+
+        if (hit) {
+            explode(b.x, b.y, b.type);
+            bullets.splice(i, 1);
+            if (bullets.length === 0) endTurn();
+        }
+    }
+}
+
+/* ── 7. 폭발 및 데미지 연산 ── */
+function explode(x, y, bulletType) {
+    const explosionRadius = bulletType === 'CANNON_RED' ? 42 : (bulletType === 'MULTI' ? 24 : 32);
     destroyTerrain(x, y, explosionRadius);
 
-    for (let i = 0; i < 35; i++) {
+    // 화려한 화염 파티클
+    for (let i = 0; i < 30; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 6 + 1;
+        const speed = Math.random() * 5 + 1;
         particles.push({
             x: x, y: y,
-            vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed,
-            radius: Math.random() * 6 + 2,
-            alpha: 1,
-            color: ['#38bdf8', '#f59e0b', '#ef4444', '#ffffff'][Math.floor(Math.random() * 4)]
+            vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+            radius: Math.random() * 5 + 2, alpha: 1,
+            color: ['#f97316', '#eab308', '#ef4444', '#ffffff'][Math.floor(Math.random() * 4)]
         });
     }
 
+    // 피격 데미지
     players.slice(1).forEach(p => {
         const dist = Math.hypot(p.x - x, p.y - y);
-        if (dist < explosionRadius + p.radius) {
-            const damage = Math.floor((1 - dist / (explosionRadius + p.radius)) * 42);
-            p.hp = Math.max(0, p.hp - damage);
+        if (dist < explosionRadius + 18) {
+            const baseDmg = bulletType === 'CANNON_RED' ? 45 : (bulletType === 'MULTI' ? 22 : 36);
+            const dmg = Math.floor((1 - dist / (explosionRadius + 18)) * baseDmg);
+            p.hp = Math.max(0, p.hp - dmg);
         }
     });
-
-    endTurn();
 }
 
 function updateParticles() {
@@ -626,7 +819,50 @@ function updateParticles() {
     }
 }
 
-function drawParticles() {
+/* ── 8. 턴 관리 및 20초 타이머 ── */
+function startTurnTimer() {
+    clearInterval(turnTimerInterval);
+    turnTimeLeft = 20;
+    document.getElementById('turnTimer').innerText = turnTimeLeft;
+
+    turnTimerInterval = setInterval(() => {
+        if (bullets.length === 0 && !isCharging && !gameOver) {
+            turnTimeLeft--;
+            document.getElementById('turnTimer').innerText = turnTimeLeft;
+            if (turnTimeLeft <= 0) {
+                endTurn();
+            }
+        }
+    }, 1000);
+}
+
+function endTurn() {
+    currentPower = 0;
+
+    if (players[1].hp <= 0 || players[2].hp <= 0) {
+        gameOver = true;
+        clearInterval(turnTimerInterval);
+        return;
+    }
+
+    currentTurn = currentTurn === 1 ? 2 : 1;
+    wind = Math.floor(Math.random() * 15) - 7; // 바람 새로 세팅
+    players[currentTurn].moveEnergy = 100;    // 이동 게이지 회복
+    setWeapon(players[currentTurn].weapon);
+
+    // HUD 액티브 전환
+    document.getElementById('p1Card').classList.toggle('active', currentTurn === 1);
+    document.getElementById('p2Card').classList.toggle('active', currentTurn === 2);
+
+    startTurnTimer();
+}
+
+/* ── 9. 메인 렌더링 루프 ── */
+function render() {
+    drawBackground();
+    ctx.drawImage(terrainCanvas, 0, 0);
+
+    // 파티클
     particles.forEach(p => {
         ctx.save();
         ctx.globalAlpha = Math.max(0, p.alpha);
@@ -636,77 +872,62 @@ function drawParticles() {
         ctx.fill();
         ctx.restore();
     });
-}
 
-function endTurn() {
-    bullet = null;
-    currentPower = 0;
-
-    if (players[1].hp <= 0 || players[2].hp <= 0) {
-        gameOver = true;
-        return;
-    }
-
-    currentTurn = currentTurn === 1 ? 2 : 1;
-    wind = Math.floor(Math.random() * 11) - 5;
-
-    document.getElementById('p1Hud').classList.toggle('active', currentTurn === 1);
-    document.getElementById('p2Hud').classList.toggle('active', currentTurn === 2);
-}
-
-function render() {
-    drawBackground();
-    ctx.drawImage(terrainCanvas, 0, 0);
-
-    drawParticles();
-
+    // 탱크
     players.slice(1).forEach(p => {
         if (p.hp > 0) drawTank(p);
     });
 
-    if (bullet) {
-        ctx.fillStyle = '#38bdf8';
+    // 포탄
+    bullets.forEach(b => {
+        ctx.fillStyle = b.type === 'CANNON_RED' ? '#ef4444' : '#fbbf24';
         ctx.beginPath();
-        ctx.arc(bullet.x, bullet.y, bullet.radius, 0, Math.PI * 2);
+        ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
         ctx.fill();
         ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1.5;
         ctx.stroke();
-    }
+    });
 
-    document.getElementById('p1Angle').innerText = players[1].angle;
-    document.getElementById('p2Angle').innerText = players[2].angle;
-    document.getElementById('p1HpFill').style.width = players[1].hp + '%';
-    document.getElementById('p2HpFill').style.width = players[2].hp + '%';
-    
-    document.getElementById('windText').innerText = wind > 0 ? `▶ ${wind}` : wind < 0 ? `◀ ${Math.abs(wind)}` : '0';
-    document.getElementById('powerFill').style.width = currentPower + '%';
+    // UI 정보 실시간 동기화
+    document.getElementById('p1Angle').innerText = Math.round(players[1].angle);
+    document.getElementById('p2Angle').innerText = Math.round(players[2].angle);
+    document.getElementById('p1HpFill').style.width = (players[1].hp / players[1].maxHp * 100) + '%';
+    document.getElementById('p2HpFill').style.width = (players[2].hp / players[2].maxHp * 100) + '%';
+    document.getElementById('p1MoveFill').style.width = players[1].moveEnergy + '%';
+    document.getElementById('p2MoveFill').style.width = players[2].moveEnergy + '%';
 
+    document.getElementById('windBox').innerText = wind > 0 ? `▶ ${wind}` : (wind < 0 ? `◀ ${Math.abs(wind)}` : '0');
+    document.getElementById('powerGauge').style.width = currentPower + '%';
+
+    // 게임 오버 오버레이
     if (gameOver) {
-        ctx.fillStyle = 'rgba(2, 6, 23, 0.9)';
+        ctx.fillStyle = 'rgba(2, 6, 23, 0.88)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
+
         ctx.fillStyle = '#f8fafc';
-        ctx.font = 'bold 36px Pretendard, sans-serif';
+        ctx.font = '900 42px Pretendard, sans-serif';
         ctx.textAlign = 'center';
-        const winner = players[1].hp > 0 ? 'P1 (헤비 탱크)' : 'P2 (미사일 캐논)';
-        ctx.fillText(`🏆 ${winner} 최종 승리!`, canvas.width / 2, canvas.height / 2 - 15);
-        
-        ctx.font = '15px Pretendard, sans-serif';
-        ctx.fillStyle = '#94a3b8';
-        ctx.fillText('새로고침 하시면 새 게임이 시작됩니다.', canvas.width / 2, canvas.height / 2 + 25);
+        const winner = players[1].hp > 0 ? 'P1 (탱크)' : 'P2 (캐논)';
+        ctx.fillText(`🏆 ${winner} VICTORY!`, canvas.width / 2, canvas.height / 2 - 10);
+
+        ctx.font = '16px Pretendard, sans-serif';
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillText('F5 키를 눌러 다시 겨뤄보세요', canvas.width / 2, canvas.height / 2 + 30);
     }
 }
 
 function loop() {
     updateGame();
-    updateBullet();
+    updateBullets();
     updateParticles();
     render();
     requestAnimationFrame(loop);
 }
 
-initTerrain();
+// 최초 실행
+initValleyMap();
+startTurnTimer();
 loop();
 </script>
 </body>
