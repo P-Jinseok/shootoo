@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>포트리스 2 리마스터 - 최종완성본</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>포트리스 2 리마스터 - 조작버그 수정본</title>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css');
 
@@ -15,7 +15,7 @@
             min-height: 100vh; min-height: 100dvh; overflow: hidden; padding: 8px;
         }
 
-        /* ── 1. 로비 화면 ── */
+        /* ── 1. 선택 로비 ── */
         #selectionLobby {
             background: rgba(15, 23, 42, 0.95); border: 2px solid #334155; border-radius: 16px;
             padding: 16px; width: 100%; max-width: 900px; max-height: 95dvh; overflow-y: auto;
@@ -63,7 +63,7 @@
         }
         .start-btn:active { transform: scale(0.96); }
 
-        /* ── 2. 게임 메인 화면 (시야 투명 UI) ── */
+        /* ── 2. 게임 화면 ── */
         #gameCabinet {
             position: relative; width: 100vw; max-width: 1024px;
             aspect-ratio: 1024 / 576; background: #020617;
@@ -136,6 +136,7 @@
         .pad-btn {
             background: linear-gradient(180deg, #334155, #1e293b); color: #f8fafc; border: 1px solid #475569;
             padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 11px; cursor: pointer;
+            touch-action: manipulation;
         }
         .pad-btn:active, .pad-btn.pressed { background: #0284c7; }
 
@@ -146,7 +147,7 @@
 </head>
 <body>
 
-<!-- 1. 선택 로비 -->
+<!-- 로비 -->
 <div id="selectionLobby">
     <h1 class="lobby-title">FORTRESS 2 REMASTERED</h1>
     <div class="lobby-content">
@@ -187,7 +188,7 @@
     <button id="btnStartGame" class="start-btn">GAME START 🔥</button>
 </div>
 
-<!-- 2. 게임 캐비넷 -->
+<!-- 게임 화면 -->
 <div id="gameCabinet" style="display: none;">
     <div id="uiOverlay">
         <div id="p1Card" class="hud-card active">
@@ -416,9 +417,7 @@ class Tank {
             this.y += 6;
             if (this.y > 620) { this.hp = 0; this.isFallen = true; }
         } else {
-            if (Math.abs(this.y - groundY) > 0.1) {
-                this.y = groundY;
-            }
+            this.y = groundY;
         }
 
         if (this.recoil > 0) this.recoil -= 0.5;
@@ -509,47 +508,47 @@ const keys = {};
 
 function setupLobbyEvents() {
     document.querySelectorAll('#p1TankSelect .tank-card').forEach(card => {
-        card.addEventListener('click', () => {
+        card.onclick = () => {
             document.querySelectorAll('#p1TankSelect .tank-card').forEach(c => c.classList.remove('active'));
             card.classList.add('active');
             selectedP1Type = card.dataset.tank;
-        });
+        };
     });
 
     document.querySelectorAll('#p2TankSelect .tank-card').forEach(card => {
-        card.addEventListener('click', () => {
+        card.onclick = () => {
             document.querySelectorAll('#p2TankSelect .tank-card').forEach(c => c.classList.remove('active'));
             card.classList.add('active');
             selectedP2Type = card.dataset.tank;
-        });
+        };
     });
 
     document.querySelectorAll('#mapSelect .map-card').forEach(card => {
-        card.addEventListener('click', () => {
+        card.onclick = () => {
             document.querySelectorAll('#mapSelect .map-card').forEach(c => c.classList.remove('active'));
             card.classList.add('active');
             selectedMap = card.dataset.map;
-        });
+        };
     });
 
-    document.getElementById('btnStartGame').addEventListener('click', () => {
+    document.getElementById('btnStartGame').onclick = () => {
         document.getElementById('selectionLobby').style.display = 'none';
         document.getElementById('gameCabinet').style.display = 'block';
         document.getElementById('arcadePad').style.display = 'flex';
         initGame();
-    });
+    };
 
-    document.getElementById('btnRestart').addEventListener('click', () => {
+    document.getElementById('btnRestart').onclick = () => {
         document.getElementById('gameOverOverlay').style.display = 'none';
         initGame();
-    });
+    };
 
-    document.getElementById('btnLobby').addEventListener('click', () => {
+    document.getElementById('btnLobby').onclick = () => {
         document.getElementById('gameOverOverlay').style.display = 'none';
         document.getElementById('gameCabinet').style.display = 'none';
         document.getElementById('arcadePad').style.display = 'none';
         document.getElementById('selectionLobby').style.display = 'flex';
-    });
+    };
 }
 
 function initGame() {
@@ -578,39 +577,52 @@ function initGame() {
     resetTimer();
 }
 
+// 💡 [키보드 이벤트 수정]
 window.addEventListener('keydown', e => {
     keys[e.code] = true;
     if (e.code === 'Digit1') setWeapon(1);
     if (e.code === 'Digit2') setWeapon(2);
-    if (e.code === 'Space' && !bullets.length && !isCharging && !gameOver && players[1]) startCharging();
+    if (e.code === 'Space' && !bullets.length && !isCharging && !gameOver && players[currentTurn]) {
+        startCharging();
+    }
 });
 
 window.addEventListener('keyup', e => {
     keys[e.code] = false;
-    if (e.code === 'Space' && isCharging) stopCharging();
+    if (e.code === 'Space' && isCharging) {
+        stopCharging();
+    }
 });
 
+// 💡 [터치/마우스 조작 바인딩 완벽 수정]
 function bindBtn(id, code) {
     const el = document.getElementById(id);
     if (!el) return;
-    const press = (e) => {
-        if(e) e.preventDefault();
+
+    const start = () => {
         keys[code] = true;
-        if (id === 'btnFire' && !bullets.length && !isCharging && !gameOver && players[1]) startCharging();
+        if (id === 'btnFire' && !bullets.length && !isCharging && !gameOver && players[currentTurn]) {
+            startCharging();
+        }
     };
-    const release = (e) => {
-        if(e) e.preventDefault();
+
+    const end = () => {
         keys[code] = false;
-        if (id === 'btnFire' && isCharging) stopCharging();
+        if (id === 'btnFire' && isCharging) {
+            stopCharging();
+        }
     };
-    el.addEventListener('mousedown', press);
-    el.addEventListener('mouseup', release);
-    el.addEventListener('touchstart', press, {passive: false});
-    el.addEventListener('touchend', release, {passive: false});
+
+    el.onmousedown = start;
+    el.onmouseup = end;
+    el.ontouchstart = (e) => { start(); };
+    el.ontouchend = (e) => { end(); };
 }
 
-bindBtn('btnLeft', 'KeyA'); bindBtn('btnRight', 'KeyD');
-bindBtn('btnUp', 'KeyW'); bindBtn('btnDown', 'KeyS');
+bindBtn('btnLeft', 'KeyA');
+bindBtn('btnRight', 'KeyD');
+bindBtn('btnUp', 'KeyW');
+bindBtn('btnDown', 'KeyS');
 bindBtn('btnFire', 'Space');
 
 document.getElementById('btnW1').onclick = () => setWeapon(1);
@@ -688,6 +700,7 @@ function explode(x, y, type) {
     });
 }
 
+// 💡 [탱크 조작 물리 업데이트 수정]
 function update() {
     if (!players[1]) return;
 
@@ -696,10 +709,10 @@ function update() {
     if (!bullets.length && !gameOver) {
         const cur = players[currentTurn];
         if (cur) {
-            if (keys['KeyA'] && cur.x > 80 && cur.moveEnergy > 0) { cur.x -= 1.2; cur.moveEnergy -= 0.4; }
-            if (keys['KeyD'] && cur.x < canvas.width - 80 && cur.moveEnergy > 0) { cur.x += 1.2; cur.moveEnergy -= 0.4; }
-            if (keys['KeyW']) cur.angle = Math.min(cur.angle + 0.8, 90);
-            if (keys['KeyS']) cur.angle = Math.max(cur.angle - 0.8, 0);
+            if (keys['KeyA'] && cur.x > 80 && cur.moveEnergy > 0) { cur.x -= 1.5; cur.moveEnergy -= 0.4; }
+            if (keys['KeyD'] && cur.x < canvas.width - 80 && cur.moveEnergy > 0) { cur.x += 1.5; cur.moveEnergy -= 0.4; }
+            if (keys['KeyW']) cur.angle = Math.min(cur.angle + 1, 90);
+            if (keys['KeyS']) cur.angle = Math.max(cur.angle - 1, 0);
             if (isCharging) currentPower = Math.min(currentPower + 0.85, 100);
         }
     }
@@ -817,13 +830,13 @@ function loop() {
     requestAnimationFrame(loop);
 }
 
-document.getElementById('btnFullscreen').addEventListener('click', () => {
+document.getElementById('btnFullscreen').onclick = () => {
     if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(() => {});
     } else {
         document.exitFullscreen().catch(() => {});
     }
-});
+};
 
 setupLobbyEvents();
 loop();
