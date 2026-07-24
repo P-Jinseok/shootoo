@@ -2,23 +2,24 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>포트리스 2 - 모바일 터치 완벽 대응</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>포트리스 2 리마스터</title>
     <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css');
+
         * {
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
             -webkit-touch-callout: none;
-            touch-action: none; /* 브라우저 기본 제스처/스크롤 완벽 차단 */
-            margin: 0;
-            padding: 0;
+            touch-action: none;
+            margin: 0; padding: 0;
         }
 
         body {
-            background: #090d16;
-            color: #fff;
-            font-family: sans-serif;
+            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+            color: #f8fafc;
+            font-family: 'Pretendard', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -26,82 +27,130 @@
             min-height: 100vh;
             min-height: 100dvh;
             overflow: hidden;
-            padding: 4px;
+            padding: 6px;
         }
 
-        /* ── 로비 ── */
+        /* ── 1. 로비 화면 ── */
         #lobby {
-            background: #1e293b;
-            padding: 16px;
-            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 95dvh;
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
+        }
+
+        .lobby-title {
+            font-size: 22px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .lobby-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 12px;
             width: 100%;
-            max-width: 500px;
+        }
+
+        .select-box {
+            background: rgba(2, 6, 23, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 10px;
+        }
+
+        .select-box h3 {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 8px;
             text-align: center;
-            border: 2px solid #475569;
-            z-index: 100;
+            font-weight: 800;
         }
 
         .btn-group {
-            display: flex;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 6px;
-            flex-wrap: wrap;
         }
 
         .opt-btn {
-            background: #334155;
-            color: #fff;
-            border: 1px solid #64748b;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 12px;
-            touch-action: manipulation;
+            background: #1e293b;
+            color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 8px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 11px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
         }
 
         .opt-btn.active {
-            background: #0284c7;
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: #fff;
             border-color: #38bdf8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+        }
+
+        .map-box {
+            width: 100%;
+            background: rgba(2, 6, 23, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 10px;
+        }
+
+        .map-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
         }
 
         .start-btn {
-            background: #ef4444;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
             color: #fff;
             border: none;
-            padding: 12px;
+            padding: 12px 40px;
             font-size: 16px;
-            font-weight: bold;
-            border-radius: 8px;
-            margin-top: 8px;
-            touch-action: manipulation;
+            font-weight: 900;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.5);
+            transition: transform 0.1s;
         }
+        .start-btn:active { transform: scale(0.96); }
 
-        /* ── 게임 메인 ── */
+        /* ── 2. 게임 화면 ── */
         #gameArea {
             display: none;
             position: relative;
             width: 100vw;
             max-width: 960px;
             aspect-ratio: 16/9;
-            background: #000;
-            border-radius: 8px;
+            background: #020617;
+            border-radius: 16px;
             overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.1);
         }
 
-        canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
+        canvas { display: block; width: 100%; height: 100%; }
 
         #hud {
             position: absolute;
-            top: 8px;
-            left: 8px;
-            right: 8px;
+            top: 10px; left: 12px; right: 12px;
             display: flex;
             justify-content: space-between;
             pointer-events: none;
@@ -109,18 +158,21 @@
         }
 
         .hud-box {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 4px 8px;
-            border-radius: 4px;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 6px 12px;
+            border-radius: 10px;
             font-size: 11px;
-            font-weight: bold;
+            font-weight: 800;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
-        /* ── 모바일 터치 아케이드 패널 ── */
+        /* ── 3. 하단 세련된 아케이드 패널 ── */
         #pad {
             display: none;
             margin-top: 8px;
-            gap: 6px;
+            gap: 8px;
             justify-content: center;
             align-items: center;
             width: 100%;
@@ -129,30 +181,39 @@
         }
 
         .pad-btn {
-            background: #334155;
-            color: #fff;
-            border: 1px solid #64748b;
-            padding: 10px 14px;
-            font-size: 13px;
-            font-weight: bold;
-            border-radius: 8px;
-            touch-action: none;
-            -webkit-tap-highlight-color: transparent;
+            background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
+            color: #f8fafc;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 10px 16px;
+            font-size: 12px;
+            font-weight: 800;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            transition: background 0.1s;
         }
 
-        .pad-btn:active, .pad-btn.pressed {
+        .pad-btn.pressed {
             background: #0284c7;
-            transform: scale(0.95);
+            border-color: #38bdf8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
         }
 
         .fire-btn {
-            background: #dc2626;
-            border-color: #f87171;
-            padding: 10px 20px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border-color: rgba(255, 255, 255, 0.2);
+            padding: 10px 24px;
         }
 
-        .fire-btn:active, .fire-btn.pressed {
-            background: #991b1b;
+        .fire-btn.pressed {
+            background: #b91c1c;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+        }
+
+        .wep-btn {
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: #f59e0b;
         }
     </style>
 </head>
@@ -160,31 +221,43 @@
 
 <!-- 로비 -->
 <div id="lobby">
-    <h2 style="font-size: 18px; color: #f59e0b;">🎮 포트리스 2 설정</h2>
-    <div>
-        <p style="font-size: 12px; margin-bottom: 4px; color: #94a3b8;">1P 탱크</p>
-        <div class="btn-group" id="p1Group">
-            <button type="button" class="opt-btn active" data-val="CATAPULT">인민탱크</button>
-            <button type="button" class="opt-btn" data-val="CANNON">캐논</button>
-            <button type="button" class="opt-btn" data-val="MISSILE">유도탱크</button>
+    <h2 class="lobby-title">FORTRESS 2 REMASTERED</h2>
+    
+    <div class="lobby-grid">
+        <div class="select-box">
+            <h3>1P 탱크</h3>
+            <div class="btn-group" id="p1Group">
+                <button type="button" class="opt-btn active" data-val="CATAPULT">인민탱크</button>
+                <button type="button" class="opt-btn" data-val="CANNON">캐논</button>
+                <button type="button" class="opt-btn" data-val="MISSILE">유도탱크</button>
+                <button type="button" class="opt-btn" data-val="DUKE">듀크탱크</button>
+                <button type="button" class="opt-btn" data-val="MULTI">멀티탱크</button>
+                <button type="button" class="opt-btn" data-val="LASER">레이저탱크</button>
+            </div>
+        </div>
+
+        <div class="select-box">
+            <h3>2P 탱크</h3>
+            <div class="btn-group" id="p2Group">
+                <button type="button" class="opt-btn" data-val="CATAPULT">인민탱크</button>
+                <button type="button" class="opt-btn active" data-val="CANNON">캐논</button>
+                <button type="button" class="opt-btn" data-val="MISSILE">유도탱크</button>
+                <button type="button" class="opt-btn" data-val="DUKE">듀크탱크</button>
+                <button type="button" class="opt-btn" data-val="MULTI">멀티탱크</button>
+                <button type="button" class="opt-btn" data-val="LASER">레이저탱크</button>
+            </div>
         </div>
     </div>
-    <div>
-        <p style="font-size: 12px; margin-bottom: 4px; color: #94a3b8;">2P 탱크</p>
-        <div class="btn-group" id="p2Group">
-            <button type="button" class="opt-btn" data-val="CATAPULT">인민탱크</button>
-            <button type="button" class="opt-btn active" data-val="CANNON">캐논</button>
-            <button type="button" class="opt-btn" data-val="MISSILE">유도탱크</button>
+
+    <div class="map-box">
+        <h3>전장 맵 선택</h3>
+        <div class="map-group" id="mapGroup">
+            <button type="button" class="opt-btn active" data-val="VALLEY">밸리 (계곡)</button>
+            <button type="button" class="opt-btn" data-val="SKY">스카이 (공중 섬)</button>
         </div>
     </div>
-    <div>
-        <p style="font-size: 12px; margin-bottom: 4px; color: #94a3b8;">전장 맵</p>
-        <div class="btn-group" id="mapGroup">
-            <button type="button" class="opt-btn active" data-val="VALLEY">밸리 계곡</button>
-            <button type="button" class="opt-btn" data-val="SKY">공중 섬</button>
-        </div>
-    </div>
-    <button type="button" class="start-btn" id="btnStart">게임 시작 🔥</button>
+
+    <button type="button" class="start-btn" id="btnStart">GAME START 🔥</button>
 </div>
 
 <!-- 게임 화면 -->
@@ -197,13 +270,13 @@
     <canvas id="cvs" width="960" height="540"></canvas>
 </div>
 
-<!-- 조작 패널 -->
+<!-- 아케이드 패널 -->
 <div id="pad">
     <button type="button" class="pad-btn" id="mLeft">◀ 이동</button>
     <button type="button" class="pad-btn" id="mRight">이동 ▶</button>
-    <button type="button" class="pad-btn" id="mUp">각도 ▲</button>
+    <button type="button" class="pad-btn" id="mUp">▲ 각도</button>
     <button type="button" class="pad-btn" id="mDown">각도 ▼</button>
-    <button type="button" class="pad-btn" id="mWep">1탄</button>
+    <button type="button" class="pad-btn wep-btn" id="mWep">1탄</button>
     <button type="button" class="pad-btn fire-btn" id="mFire">🔥 FIRE</button>
 </div>
 
@@ -263,17 +336,18 @@ class Tank {
         ctx.translate(this.x, this.y);
         if (this.id === 2) ctx.scale(-1, 1);
 
-        ctx.fillStyle = this.color;
-        ctx.fillRect(-16, -12, 32, 12);
+        // 차체 세밀 드로잉
         ctx.fillStyle = '#0f172a';
         ctx.fillRect(-18, -2, 36, 6);
+        ctx.fillStyle = this.color;
+        ctx.fillRect(-14, -12, 28, 10);
 
         const rad = this.angle * Math.PI / 180;
-        ctx.strokeStyle = '#fff';
+        ctx.strokeStyle = '#f8fafc';
         ctx.lineWidth = 4;
         ctx.beginPath();
         ctx.moveTo(0, -8);
-        ctx.lineTo(Math.cos(rad) * 25, -8 - Math.sin(rad) * 25);
+        ctx.lineTo(Math.cos(rad) * 26, -8 - Math.sin(rad) * 26);
         ctx.stroke();
 
         ctx.restore();
@@ -282,51 +356,32 @@ class Tank {
 
 let p1, p2;
 
-// 💡 모바일 터치/클릭 반응을 100% 보장하는 만능 바인딩 함수
-function attachTouchClick(el, onStart, onEnd) {
+// 💡 포인터 기반 만능 터치/마우스 이벤트 처리기
+function attachPointerEvents(el, onStart, onEnd) {
     if (!el) return;
 
-    let isTouched = false;
-
-    // 터치 이벤트
-    el.addEventListener('touchstart', (e) => {
+    el.addEventListener('pointerdown', (e) => {
         e.preventDefault();
-        isTouched = true;
-        el.classList.add('pressed');
-        if (onStart) onStart();
-    }, { passive: false });
-
-    el.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        el.classList.remove('pressed');
-        if (onEnd) onEnd();
-        setTimeout(() => { isTouched = false; }, 300);
-    }, { passive: false });
-
-    // 마우스 이벤트 (PC 겸용)
-    el.addEventListener('mousedown', (e) => {
-        if (isTouched) return;
         el.classList.add('pressed');
         if (onStart) onStart();
     });
 
-    el.addEventListener('mouseup', (e) => {
-        if (isTouched) return;
+    const release = (e) => {
+        if (e) e.preventDefault();
         el.classList.remove('pressed');
         if (onEnd) onEnd();
-    });
+    };
 
-    el.addEventListener('mouseleave', (e) => {
-        el.classList.remove('pressed');
-        if (onEnd && !isTouched) onEnd();
-    });
+    el.addEventListener('pointerup', release);
+    el.addEventListener('pointerleave', release);
+    el.addEventListener('pointercancel', release);
 }
 
-// 로비 버튼 세팅
+// 로비 버튼
 function setupLobbyBtn(groupId, callback) {
     const btns = document.querySelectorAll(`#${groupId} .opt-btn`);
     btns.forEach(b => {
-        attachTouchClick(b, () => {
+        attachPointerEvents(b, () => {
             btns.forEach(x => x.classList.remove('active'));
             b.classList.add('active');
             callback(b.dataset.val);
@@ -338,8 +393,8 @@ setupLobbyBtn('p1Group', val => p1Type = val);
 setupLobbyBtn('p2Group', val => p2Type = val);
 setupLobbyBtn('mapGroup', val => mapType = val);
 
-// 게임 시작 버튼
-attachTouchClick(document.getElementById('btnStart'), () => {
+// 시작 버튼
+attachPointerEvents(document.getElementById('btnStart'), () => {
     document.getElementById('lobby').style.display = 'none';
     document.getElementById('gameArea').style.display = 'block';
     document.getElementById('pad').style.display = 'flex';
@@ -349,21 +404,21 @@ attachTouchClick(document.getElementById('btnStart'), () => {
     wind = Math.floor(Math.random() * 11) - 5;
 }, null);
 
-// 방향 조작 바인딩
-attachTouchClick(document.getElementById('mLeft'), () => inputs.left = true, () => inputs.left = false);
-attachTouchClick(document.getElementById('mRight'), () => inputs.right = true, () => inputs.right = false);
-attachTouchClick(document.getElementById('mUp'), () => inputs.up = true, () => inputs.up = false);
-attachTouchClick(document.getElementById('mDown'), () => inputs.down = true, () => inputs.down = false);
+// 조작 패널
+attachPointerEvents(document.getElementById('mLeft'), () => inputs.left = true, () => inputs.left = false);
+attachPointerEvents(document.getElementById('mRight'), () => inputs.right = true, () => inputs.right = false);
+attachPointerEvents(document.getElementById('mUp'), () => inputs.up = true, () => inputs.up = false);
+attachPointerEvents(document.getElementById('mDown'), () => inputs.down = true, () => inputs.down = false);
 
 // 무기 전환
-attachTouchClick(document.getElementById('mWep'), () => {
+attachPointerEvents(document.getElementById('mWep'), () => {
     const cur = currentTurn === 1 ? p1 : p2;
     cur.wep = cur.wep === 1 ? 2 : 1;
     document.getElementById('mWep').innerText = `${cur.wep}탄`;
 }, null);
 
-// 발사 버튼
-attachTouchClick(document.getElementById('mFire'), () => {
+// 발사
+attachPointerEvents(document.getElementById('mFire'), () => {
     if (!bullet && !isCharging && !gameOver) {
         isCharging = true;
         power = 0;
@@ -375,7 +430,7 @@ attachTouchClick(document.getElementById('mFire'), () => {
     }
 });
 
-// 키보드 지원 (PC 테스트용)
+// 키보드 지원
 window.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') inputs.left = true;
     if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') inputs.right = true;
@@ -492,7 +547,11 @@ function update() {
 }
 
 function render() {
-    ctx.fillStyle = '#0284c7';
+    let skyGrad = ctx.createLinearGradient(0, 0, 0, cvs.height);
+    skyGrad.addColorStop(0, '#0284c7');
+    skyGrad.addColorStop(0.6, '#38bdf8');
+    skyGrad.addColorStop(1, '#bae6fd');
+    ctx.fillStyle = skyGrad;
     ctx.fillRect(0, 0, cvs.width, cvs.height);
 
     ctx.fillStyle = '#475569';
@@ -518,10 +577,10 @@ function render() {
     }
 
     if (gameOver) {
-        ctx.fillStyle = 'rgba(0,0,0,0.8)';
+        ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
         ctx.fillRect(0, 0, cvs.width, cvs.height);
         ctx.fillStyle = '#fff';
-        ctx.font = 'bold 30px sans-serif';
+        ctx.font = 'bold 30px Pretendard, sans-serif';
         ctx.textAlign = 'center';
         const win = p1.hp > 0 && !p1.isFallen ? 'P1 승리!' : 'P2 승리!';
         ctx.fillText(`🏆 ${win}`, cvs.width / 2, cvs.height / 2);
