@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>포트리스 2 리마스터 - 고퀄리티 그래픽 에디션</title>
+    <title>포트리스 2 리마스터 - 파괴 지형 & 그래픽 개편 에디션</title>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css');
 
@@ -17,7 +17,7 @@
         }
 
         body {
-            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+            background: #020617;
             color: #f8fafc;
             font-family: 'Pretendard', sans-serif;
             display: flex; flex-direction: column;
@@ -28,7 +28,7 @@
 
         /* ── 1. 로비 ── */
         #lobby {
-            background: rgba(15, 23, 42, 0.92);
+            background: rgba(15, 23, 42, 0.94);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 20px; padding: 20px;
@@ -40,8 +40,8 @@
         }
 
         .lobby-title {
-            font-size: 24px; font-weight: 900;
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            font-size: 26px; font-weight: 900;
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: -0.5px;
@@ -59,7 +59,7 @@
         }
 
         .select-box h3 {
-            font-size: 13px; color: #94a3b8;
+            font-size: 13px; color: #cbd5e1;
             margin-bottom: 8px; text-align: center; font-weight: 800;
         }
 
@@ -70,7 +70,7 @@
         .opt-btn {
             background: #1e293b; color: #94a3b8;
             border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 8px 6px; border-radius: 8px;
+            padding: 9px 6px; border-radius: 8px;
             font-weight: 700; font-size: 11px;
             cursor: pointer; text-align: center;
         }
@@ -88,7 +88,7 @@
         }
 
         .map-group {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
         }
 
         .start-btn {
@@ -116,15 +116,15 @@
         }
 
         .hud-box {
-            background: rgba(15, 23, 42, 0.45);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 6px 12px; border-radius: 10px;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 6px 14px; border-radius: 10px;
             font-size: 11px; font-weight: 800;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
 
-        /* ── 3. 하단 세련된 아케이드 패널 ── */
+        /* ── 3. 조작 패널 ── */
         #pad {
             display: none; margin-top: 8px; gap: 8px;
             justify-content: center; align-items: center;
@@ -133,7 +133,7 @@
 
         .pad-btn {
             background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
-            color: #f8fafc; border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #f8fafc; border: 1px solid rgba(255, 255, 255, 0.15);
             padding: 10px 16px; font-size: 12px; font-weight: 800;
             border-radius: 10px; cursor: pointer;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
@@ -160,13 +160,13 @@
 </head>
 <body>
 
-<!-- 로비 -->
+<!-- 1. 선택 로비 -->
 <div id="lobby">
     <h2 class="lobby-title">FORTRESS 2 REMASTERED</h2>
     
     <div class="lobby-grid">
         <div class="select-box">
-            <h3>1P 탱크</h3>
+            <h3>1P 탱크 선택</h3>
             <div class="btn-group" id="p1Group">
                 <button type="button" class="opt-btn active" data-val="CATAPULT">인민탱크</button>
                 <button type="button" class="opt-btn" data-val="CANNON">캐논</button>
@@ -178,7 +178,7 @@
         </div>
 
         <div class="select-box">
-            <h3>2P 탱크</h3>
+            <h3>2P 탱크 선택</h3>
             <div class="btn-group" id="p2Group">
                 <button type="button" class="opt-btn" data-val="CATAPULT">인민탱크</button>
                 <button type="button" class="opt-btn active" data-val="CANNON">캐논</button>
@@ -193,15 +193,16 @@
     <div class="map-box">
         <h3>전장 맵 선택</h3>
         <div class="map-group" id="mapGroup">
-            <button type="button" class="opt-btn active" data-val="VALLEY">밸리 (계곡)</button>
-            <button type="button" class="opt-btn" data-val="SKY">스카이 (공중 섬)</button>
+            <button type="button" class="opt-btn active" data-val="VALLEY">VALLEY (계곡)</button>
+            <button type="button" class="opt-btn" data-val="SKY">SKY (공중 섬)</button>
+            <button type="button" class="opt-btn" data-val="DESERT">DESERT (사막)</button>
         </div>
     </div>
 
     <button type="button" class="start-btn" id="btnStart">GAME START 🔥</button>
 </div>
 
-<!-- 게임 화면 -->
+<!-- 2. 게임 화면 -->
 <div id="gameArea">
     <div id="hud">
         <div class="hud-box" id="p1Hud" style="color:#4ade80;">P1 HP: 100</div>
@@ -211,19 +212,25 @@
     <canvas id="cvs" width="960" height="540"></canvas>
 </div>
 
-<!-- 아케이드 패널 -->
+<!-- 3. 컨트롤 패널 -->
 <div id="pad">
     <button type="button" class="pad-btn" id="mLeft">◀ 이동</button>
     <button type="button" class="pad-btn" id="mRight">이동 ▶</button>
     <button type="button" class="pad-btn" id="mUp">▲ 각도</button>
     <button type="button" class="pad-btn" id="mDown">각도 ▼</button>
-    <button type="button" class="pad-btn wep-btn" id="mWep">1탄</button>
+    <button type="button" class="pad-btn wep-btn" id="mWep">1탄 (일반)</button>
     <button type="button" class="pad-btn fire-btn" id="mFire">🔥 FIRE</button>
 </div>
 
 <script>
 const cvs = document.getElementById('cvs');
 const ctx = cvs.getContext('2d');
+
+// 지형 실시간 파괴용 오프스크린 캔버스
+const tCvs = document.createElement('canvas');
+tCvs.width = cvs.width;
+tCvs.height = cvs.height;
+const tCtx = tCvs.getContext('2d');
 
 let p1Type = 'CATAPULT', p2Type = 'CANNON', mapType = 'VALLEY';
 let currentTurn = 1;
@@ -233,47 +240,115 @@ let power = 0;
 let bullets = [];
 let particles = [];
 let gameOver = false;
+let shakeTime = 0;
 
 const inputs = { left: false, right: false, up: false, down: false };
 
-function getGroundY(x) {
-    if (mapType === 'SKY' && (x < 100 || x > 860)) return null;
-    let base = 380;
-    if (mapType === 'VALLEY') {
-        base = 380 + Math.sin(x * 0.008) * 40;
-        if (x > 350 && x < 610) base += Math.sin((x - 350) / 260 * Math.PI) * 50;
-    } else {
-        base = 350 + Math.sin(x * 0.01) * 30;
+// ── 💡 실시간 파괴형 지형 엔진 ──
+class DestructibleTerrain {
+    constructor() {
+        this.holes = [];
     }
-    return base;
+
+    init(type) {
+        this.holes = [];
+        tCtx.clearRect(0, 0, tCvs.width, tCvs.height);
+
+        // Base Height Function
+        const getBaseY = (x) => {
+            if (type === 'SKY') {
+                if (x < 110 || x > 850) return null;
+                return 340 + Math.sin(x * 0.008) * 35 + Math.cos(x * 0.015) * 20;
+            } else if (type === 'DESERT') {
+                return 360 + Math.sin(x * 0.012) * 25 + Math.sin(x * 0.004) * 45;
+            } else { // VALLEY
+                let y = 370 + Math.sin(x * 0.008) * 35;
+                if (x > 340 && x < 620) y += Math.sin((x - 340) / 280 * Math.PI) * 60;
+                return y;
+            }
+        };
+
+        // 지형 렌더링
+        tCtx.beginPath();
+        if (type === 'SKY') {
+            tCtx.moveTo(110, getBaseY(110));
+            for (let x = 110; x <= 850; x += 4) tCtx.lineTo(x, getBaseY(x));
+            tCtx.lineTo(810, 460); tCtx.lineTo(tCvs.width / 2, 500); tCtx.lineTo(150, 460);
+            tCtx.closePath();
+        } else {
+            tCtx.moveTo(0, tCvs.height);
+            for (let x = 0; x <= tCvs.width; x += 4) tCtx.lineTo(x, getBaseY(x));
+            tCtx.lineTo(tCvs.width, tCvs.height);
+        }
+
+        // 맵별 채우기 색상
+        if (type === 'DESERT') tCtx.fillStyle = '#d97706';
+        else if (type === 'SKY') tCtx.fillStyle = '#475569';
+        else tCtx.fillStyle = '#334155';
+        tCtx.fill();
+
+        // 표면 잔디/층
+        tCtx.strokeStyle = type === 'DESERT' ? '#f59e0b' : '#22c55e';
+        tCtx.lineWidth = 8;
+        tCtx.stroke();
+    }
+
+    // 💡 실제 캔버스 픽셀을 물리적으로 깎아내는 함수
+    destroy(cx, cy, radius) {
+        this.holes.push({ x: cx, y: cy, r: radius });
+        tCtx.save();
+        tCtx.globalCompositeOperation = 'destination-out';
+        tCtx.beginPath();
+        tCtx.arc(cx, cy, radius, 0, Math.PI * 2);
+        tCtx.fill();
+        tCtx.restore();
+    }
+
+    // 💡 탱크 착지용 실시간 지형 높이 탐색 (크레이터 구멍 반영)
+    getGroundY(x) {
+        if (x < 0 || x > tCvs.width) return null;
+        if (mapType === 'SKY' && (x < 110 || x > 850)) return null;
+
+        // 픽셀 검사로 지형 표면 높이 탐색
+        const imgData = tCtx.getImageData(Math.floor(x), 0, 1, tCvs.height).data;
+        for (let y = 100; y < tCvs.height; y++) {
+            if (imgData[y * 4 + 3] > 100) return y; // 알파값이 존재하는 지점
+        }
+        return null;
+    }
+
+    draw(mainCtx) {
+        mainCtx.drawImage(tCvs, 0, 0);
+    }
 }
 
-/* ── 고퀄리티 디테일 탱크 클래스 ── */
+const terrain = new DestructibleTerrain();
+
+/* ── 디테일 독창적 탱크 클래스 ── */
 class Tank {
-    constructor(id, type, x, mainColor, darkColor) {
+    constructor(id, type, x, color) {
         this.id = id;
         this.type = type;
         this.x = x;
-        this.y = getGroundY(x) || 380;
-        this.mainColor = mainColor;
-        this.darkColor = darkColor;
+        this.y = terrain.getGroundY(x) || 360;
+        this.color = color;
         this.hp = 100;
         this.angle = 45;
         this.wep = 1;
         this.isFallen = false;
-        this.animFrame = 0;
+        this.recoil = 0;
     }
 
     update() {
         if (this.isFallen) return;
-        this.animFrame++;
-        const gY = getGroundY(this.x);
+        const gY = terrain.getGroundY(this.x);
         if (gY === null) {
             this.y += 6;
-            if (this.y > 600) { this.hp = 0; this.isFallen = true; }
+            if (this.y > 580) { this.hp = 0; this.isFallen = true; }
         } else {
             this.y = gY;
         }
+        if (this.recoil > 0) this.recoil -= 0.5;
     }
 
     draw() {
@@ -283,69 +358,63 @@ class Tank {
         if (this.id === 2) ctx.scale(-1, 1);
 
         const rad = this.angle * Math.PI / 180;
+        const rOffset = this.recoil || 0;
 
-        if (this.type === 'CATAPULT') {
-            // [인민탱크] 투석기 형태
-            ctx.fillStyle = '#0f172a';
-            ctx.beginPath(); ctx.roundRect(-22, -3, 44, 11, 5); ctx.fill();
-            ctx.fillStyle = '#854d0e';
-            ctx.fillRect(-14, -14, 28, 11);
-            ctx.strokeStyle = '#a16207'; ctx.lineWidth = 6;
-            ctx.beginPath(); ctx.moveTo(-6, -10); ctx.lineTo(Math.cos(rad) * 28, -10 - Math.sin(rad) * 28); ctx.stroke();
+        // 💡 6종 탱크 각각 개성 있는 그리기
+        if (this.type === 'CATAPULT') { // 인민탱크 (투석기)
+            ctx.fillStyle = '#1e293b'; ctx.fillRect(-22, -3, 44, 8); // 무한궤도
+            ctx.fillStyle = '#854d0e'; ctx.fillRect(-14, -14, 28, 11); // 목재 프레임
+            // 투석기 암
+            ctx.strokeStyle = '#a16207'; ctx.lineWidth = 5;
+            ctx.beginPath(); ctx.moveTo(-4, -8); ctx.lineTo(Math.cos(rad) * (26 - rOffset), -8 - Math.sin(rad) * (26 - rOffset)); ctx.stroke();
+            // 포탄 대기 바구니
+            ctx.fillStyle = '#f59e0b'; ctx.beginPath(); ctx.arc(Math.cos(rad) * (26 - rOffset), -8 - Math.sin(rad) * (26 - rOffset), 4, 0, Math.PI * 2); ctx.fill();
 
-        } else if (this.type === 'CANNON') {
-            // [캐논] 붉은 돔 포탑 & 롱 캐논
-            ctx.fillStyle = '#0f172a';
-            ctx.beginPath(); ctx.roundRect(-20, -2, 40, 11, 5); ctx.fill();
-            ctx.fillStyle = '#ef4444';
-            ctx.beginPath(); ctx.arc(0, -5, 16, Math.PI, 0); ctx.fill();
-            ctx.strokeStyle = '#7f1d1d'; ctx.lineWidth = 2; ctx.stroke();
-            ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 5; ctx.lineCap = 'round';
-            ctx.beginPath(); ctx.moveTo(0, -6); ctx.lineTo(Math.cos(rad) * 34, -6 - Math.sin(rad) * 34); ctx.stroke();
+        } else if (this.type === 'CANNON') { // 캐논
+            ctx.fillStyle = '#0f172a'; ctx.fillRect(-20, -2, 40, 8);
+            ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.arc(0, -5, 16, Math.PI, 0); ctx.fill(); // 대형 캐논 돔
+            ctx.strokeStyle = '#991b1b'; ctx.lineWidth = 2; ctx.stroke();
+            ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 6; ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(0, -6); ctx.lineTo(Math.cos(rad) * (34 - rOffset), -6 - Math.sin(rad) * (34 - rOffset)); ctx.stroke();
 
-        } else if (this.type === 'MISSILE') {
-            // [유도탱크] 블루 미사일 포대
-            ctx.fillStyle = '#0f172a';
-            ctx.beginPath(); ctx.roundRect(-22, -3, 44, 11, 5); ctx.fill();
-            ctx.fillStyle = '#0284c7';
-            ctx.beginPath(); ctx.roundRect(-16, -16, 32, 13, 4); ctx.fill();
+        } else if (this.type === 'MISSILE') { // 유도탱크
+            ctx.fillStyle = '#0f172a'; ctx.fillRect(-22, -2, 44, 8);
+            ctx.fillStyle = '#0284c7'; ctx.fillRect(-16, -16, 32, 14); // 미사일 포대 바디
+            ctx.fillStyle = '#38bdf8'; ctx.fillRect(-12, -20, 8, 4); ctx.fillRect(4, -20, 8, 4); // 미사일 팁
             ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 4;
-            ctx.beginPath(); ctx.moveTo(0, -10); ctx.lineTo(Math.cos(rad) * 30, -10 - Math.sin(rad) * 30); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, -10); ctx.lineTo(Math.cos(rad) * (30 - rOffset), -10 - Math.sin(rad) * (30 - rOffset)); ctx.stroke();
 
-        } else if (this.type === 'DUKE') {
-            // [듀크탱크] 중장갑
-            ctx.fillStyle = '#0f172a';
-            ctx.beginPath(); ctx.roundRect(-26, -4, 52, 14, 6); ctx.fill();
-            ctx.fillStyle = '#475569';
-            ctx.fillRect(-18, -18, 36, 14);
-            ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 8;
-            ctx.beginPath(); ctx.moveTo(0, -11); ctx.lineTo(Math.cos(rad) * 30, -11 - Math.sin(rad) * 30); ctx.stroke();
+        } else if (this.type === 'DUKE') { // 듀크
+            ctx.fillStyle = '#0f172a'; ctx.fillRect(-26, -4, 52, 10);
+            ctx.fillStyle = '#475569'; ctx.fillRect(-20, -18, 40, 14); // 메탈 육중 장갑
+            ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 9;
+            ctx.beginPath(); ctx.moveTo(0, -11); ctx.lineTo(Math.cos(rad) * (32 - rOffset), -11 - Math.sin(rad) * (32 - rOffset)); ctx.stroke();
 
-        } else if (this.type === 'MULTI') {
-            // [멀티탱크] 그린 다련장 포신
-            ctx.fillStyle = '#0f172a';
-            ctx.beginPath(); ctx.roundRect(-20, -3, 40, 11, 5); ctx.fill();
-            ctx.fillStyle = '#16a34a';
-            ctx.beginPath(); ctx.arc(0, -6, 14, Math.PI, 0); ctx.fill();
+        } else if (this.type === 'MULTI') { // 멀티
+            ctx.fillStyle = '#0f172a'; ctx.fillRect(-20, -2, 40, 8);
+            ctx.fillStyle = '#16a34a'; ctx.beginPath(); ctx.arc(0, -6, 14, Math.PI, 0); ctx.fill();
             ctx.strokeStyle = '#15803d'; ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.moveTo(-2, -8); ctx.lineTo(Math.cos(rad) * 28 - 2, -8 - Math.sin(rad) * 28); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(2, -4); ctx.lineTo(Math.cos(rad) * 28 + 2, -4 - Math.sin(rad) * 28); ctx.stroke();
+            // 2중 연사 포신
+            ctx.beginPath(); ctx.moveTo(-3, -8); ctx.lineTo(Math.cos(rad) * (28 - rOffset) - 3, -8 - Math.sin(rad) * (28 - rOffset)); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(3, -4); ctx.lineTo(Math.cos(rad) * (28 - rOffset) + 3, -4 - Math.sin(rad) * (28 - rOffset)); ctx.stroke();
 
-        } else if (this.type === 'LASER') {
-            // [레이저탱크] SF 세모 포탑
-            ctx.fillStyle = '#0f172a';
-            ctx.beginPath(); ctx.roundRect(-20, -3, 40, 11, 5); ctx.fill();
-            ctx.fillStyle = '#0284c7';
-            ctx.beginPath(); ctx.moveTo(-16, -2); ctx.lineTo(0, -18); ctx.lineTo(16, -2); ctx.fill();
+        } else if (this.type === 'LASER') { // 레이저
+            ctx.fillStyle = '#0f172a'; ctx.fillRect(-20, -2, 40, 8);
+            ctx.fillStyle = '#0284c7'; ctx.beginPath(); ctx.moveTo(-16, -2); ctx.lineTo(0, -20); ctx.lineTo(16, -2); ctx.fill(); // SF 델타 포탑
             ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 4;
-            ctx.beginPath(); ctx.moveTo(0, -10); ctx.lineTo(Math.cos(rad) * 32, -10 - Math.sin(rad) * 32); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, -10); ctx.lineTo(Math.cos(rad) * (34 - rOffset), -10 - Math.sin(rad) * (34 - rOffset)); ctx.stroke();
         }
+
+        // 조준선
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)'; ctx.lineWidth = 1.5; ctx.setLineDash([3, 3]);
+        ctx.beginPath(); ctx.moveTo(0, -10); ctx.lineTo(Math.cos(rad) * 50, -10 - Math.sin(rad) * 50); ctx.stroke();
+        ctx.setLineDash([]);
 
         ctx.restore();
     }
 }
 
-/* ── 포탄 클래스 ── */
+/* ── 포탄 및 특수효과 클래스 ── */
 class Bullet {
     constructor(shooterId, x, y, vx, vy, type, wep) {
         this.shooterId = shooterId;
@@ -359,20 +428,20 @@ class Bullet {
     update(wind, enemy) {
         this.age++;
 
-        // 유도탄 로직
+        // 유도탄 전용 비행 로직
         if (this.type === 'MISSILE' && this.wep === 2 && enemy && !enemy.isFallen) {
             const dist = Math.hypot(enemy.x - this.x, (enemy.y - 10) - this.y);
-            if (dist < 200) {
+            if (dist < 220) {
                 const angle = Math.atan2((enemy.y - 10) - this.y, enemy.x - this.x);
                 const spd = Math.hypot(this.vx, this.vy);
                 this.vx = this.vx * 0.82 + Math.cos(angle) * spd * 0.18;
                 this.vy = this.vy * 0.82 + Math.sin(angle) * spd * 0.18;
             } else {
-                this.vx += wind * 0.001; this.vy += 0.15;
+                this.vx += wind * 0.001; this.vy += 0.14;
             }
         } else {
             this.vx += wind * 0.0015;
-            this.vy += 0.15;
+            this.vy += 0.14;
         }
 
         this.x += this.vx;
@@ -388,7 +457,7 @@ class Bullet {
         else ctx.fillStyle = '#fbbf24';
 
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.wep === 2 ? 6 : 4, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, (this.wep === 2 && this.type === 'CANNON') ? 7 : 4, 0, Math.PI * 2);
         ctx.fill();
         ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
         ctx.restore();
@@ -434,9 +503,10 @@ attachPointerEvents(document.getElementById('btnStart'), () => {
     document.getElementById('gameArea').style.display = 'block';
     document.getElementById('pad').style.display = 'flex';
 
-    p1 = new Tank(1, p1Type, 200, '#22c55e', '#14532d');
-    p2 = new Tank(2, p2Type, 760, '#ef4444', '#7f1d1d');
-    wind = Math.floor(Math.random() * 11) - 5;
+    terrain.init(mapType);
+    p1 = new Tank(1, p1Type, 180, '#22c55e');
+    p2 = new Tank(2, p2Type, 780, '#ef4444');
+    wind = Math.floor(Math.random() * 13) - 6;
 }, null);
 
 attachPointerEvents(document.getElementById('mLeft'), () => inputs.left = true, () => inputs.left = false);
@@ -447,7 +517,7 @@ attachPointerEvents(document.getElementById('mDown'), () => inputs.down = true, 
 attachPointerEvents(document.getElementById('mWep'), () => {
     const cur = currentTurn === 1 ? p1 : p2;
     cur.wep = cur.wep === 1 ? 2 : 1;
-    document.getElementById('mWep').innerText = `${cur.wep}탄`;
+    document.getElementById('mWep').innerText = `${cur.wep}탄 (${cur.wep === 1 ? '일반' : '특수'})`;
 }, null);
 
 attachPointerEvents(document.getElementById('mFire'), () => {
@@ -460,6 +530,7 @@ attachPointerEvents(document.getElementById('mFire'), () => {
     }
 });
 
+// PC 키보드 지원
 window.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') inputs.left = true;
     if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') inputs.right = true;
@@ -485,21 +556,20 @@ window.addEventListener('keyup', e => {
 function shoot() {
     const cur = currentTurn === 1 ? p1 : p2;
     const rad = (cur.id === 2 ? (180 - cur.angle) : cur.angle) * Math.PI / 180;
-    const spd = power * 0.23;
+    const spd = power * 0.25;
+    cur.recoil = 8;
 
     if (cur.wep === 2 && cur.type === 'CATAPULT') {
-        // 인민탱크 3연사
         for (let i = 0; i < 3; i++) {
             setTimeout(() => {
-                bullets.push(new Bullet(cur.id, cur.x + Math.cos(rad) * 28, cur.y - 10 - Math.sin(rad) * 28, Math.cos(rad) * spd * (1 + (i - 1) * 0.04), -Math.sin(rad) * spd * (1 + (i - 1) * 0.04), cur.type, cur.wep));
+                bullets.push(new Bullet(cur.id, cur.x + Math.cos(rad) * 28, cur.y - 10 - Math.sin(rad) * 28, Math.cos(rad) * spd * (1 + (i - 1) * 0.05), -Math.sin(rad) * spd * (1 + (i - 1) * 0.05), cur.type, cur.wep));
             }, i * 140);
         }
     } else if (cur.wep === 2 && cur.type === 'MULTI') {
-        // 멀티탱크 6연사
         for (let i = 0; i < 6; i++) {
             setTimeout(() => {
                 bullets.push(new Bullet(cur.id, cur.x + Math.cos(rad) * 28, cur.y - 10 - Math.sin(rad) * 28, Math.cos(rad) * spd * (1 + (Math.random() - 0.5) * 0.08), -Math.sin(rad) * spd * (1 + (Math.random() - 0.5) * 0.08), cur.type, cur.wep));
-            }, i * 90);
+            }, i * 80);
         }
     } else {
         bullets.push(new Bullet(cur.id, cur.x + Math.cos(rad) * 28, cur.y - 10 - Math.sin(rad) * 28, Math.cos(rad) * spd, -Math.sin(rad) * spd, cur.type, cur.wep));
@@ -514,13 +584,13 @@ function update() {
 
     if (bullets.length === 0 && !gameOver) {
         const cur = currentTurn === 1 ? p1 : p2;
-        if (inputs.left) cur.x = Math.max(50, cur.x - 2);
-        if (inputs.right) cur.x = Math.min(910, cur.x + 2);
+        if (inputs.left) cur.x = Math.max(50, cur.x - 1.8);
+        if (inputs.right) cur.x = Math.min(910, cur.x + 1.8);
         if (inputs.up) cur.angle = Math.min(90, cur.angle + 1);
         if (inputs.down) cur.angle = Math.max(0, cur.angle - 1);
 
         if (isCharging) {
-            power = Math.min(100, power + 1.2);
+            power = Math.min(100, power + 1.1);
         }
     }
 
@@ -530,29 +600,56 @@ function update() {
         let b = bullets[i];
         b.update(wind, enemy);
 
-        particles.push({ x: b.x, y: b.y, radius: 2, alpha: 0.6 });
+        // 연기/광선 파티클
+        particles.push({
+            x: b.x, y: b.y,
+            color: b.type === 'DUKE' && b.wep === 2 ? '#a855f7' : '#f59e0b',
+            radius: Math.random() * 2 + 1, alpha: 0.7
+        });
 
-        const gY = getGroundY(b.x);
+        const gY = terrain.getGroundY(b.x);
         let hit = false;
 
+        // 지형 충돌
         if (gY !== null && b.y >= gY) hit = true;
+        // 맵 이탈
         if (b.x < 0 || b.x > 960 || b.y > 540) {
             bullets.splice(i, 1);
             if (bullets.length === 0) endTurn();
             continue;
         }
 
+        // 탱크 직격 충돌
         [p1, p2].forEach(p => {
             if (p.id !== b.shooterId && !p.isFallen) {
-                if (Math.hypot(p.x - b.x, (p.y - 8) - b.y) < 20) hit = true;
+                if (Math.hypot(p.x - b.x, (p.y - 8) - b.y) < 18) hit = true;
             }
         });
 
         if (hit) {
+            // 💡 [지형 파괴 핵심!] 포탄의 종류에 맞춰 지형 파내기
+            const explosionRadius = (b.wep === 2 && b.type === 'CANNON') ? 48 : ((b.wep === 2 && b.type === 'DUKE') ? 40 : 32);
+            terrain.destroy(b.x, b.y, explosionRadius);
+
+            shakeTime = 12; // 화면 흔들림 효과
+
+            // 폭발 파티클 이펙트
+            for (let p = 0; p < 25; p++) {
+                const angle = Math.random() * Math.PI * 2;
+                const spd = Math.random() * 4 + 1;
+                particles.push({
+                    x: b.x, y: b.y,
+                    vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd,
+                    color: ['#ef4444', '#f59e0b', '#fbbf24'][Math.floor(Math.random() * 3)],
+                    radius: Math.random() * 4 + 2, alpha: 1
+                });
+            }
+
+            // 스플래시 데미지
             [p1, p2].forEach(p => {
                 const d = Math.hypot(p.x - b.x, p.y - b.y);
-                if (d < 45) {
-                    const dmg = Math.floor((1 - d / 45) * (b.wep === 2 ? 40 : 28));
+                if (d < explosionRadius + 10) {
+                    const dmg = Math.floor((1 - d / (explosionRadius + 10)) * (b.wep === 2 ? 42 : 28));
                     p.hp = Math.max(0, p.hp - dmg);
                 }
             });
@@ -562,15 +659,17 @@ function update() {
         }
     }
 
+    // 파티클 수명 업데이트
     for (let i = particles.length - 1; i >= 0; i--) {
         let p = particles[i];
+        if (p.vx) { p.x += p.vx; p.y += p.vy; }
         p.alpha -= 0.03;
         if (p.alpha <= 0) particles.splice(i, 1);
     }
 
     document.getElementById('p1Hud').innerText = `P1 HP: ${p1.hp} | 각도: ${p1.angle}°`;
     document.getElementById('p2Hud').innerText = `P2 HP: ${p2.hp} | 각도: ${p2.angle}°`;
-    document.getElementById('centerHud').innerText = `턴: P${currentTurn} | 바람: ${wind} | 파워: ${Math.floor(power)}%`;
+    document.getElementById('centerHud').innerText = `턴: P${currentTurn} | 바람: ${wind > 0 ? '▶ ' + wind : (wind < 0 ? '◀ ' + Math.abs(wind) : '0')} | 파워: ${Math.floor(power)}%`;
 }
 
 function endTurn() {
@@ -579,35 +678,49 @@ function endTurn() {
         gameOver = true;
     } else {
         currentTurn = currentTurn === 1 ? 2 : 1;
-        wind = Math.floor(Math.random() * 11) - 5;
+        wind = Math.floor(Math.random() * 13) - 6;
+        document.getElementById('mWep').innerText = `1탄 (일반)`;
     }
 }
 
 function render() {
-    let skyGrad = ctx.createLinearGradient(0, 0, 0, cvs.height);
-    skyGrad.addColorStop(0, '#0284c7');
-    skyGrad.addColorStop(0.6, '#38bdf8');
-    skyGrad.addColorStop(1, '#bae6fd');
-    ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, cvs.width, cvs.height);
+    ctx.save();
 
-    // 입체 잔디 지형
-    ctx.fillStyle = '#475569';
+    // 💡 화면 흔들림 스크린 셰이크
+    if (shakeTime > 0) {
+        shakeTime--;
+        ctx.translate((Math.random() - 0.5) * 6, (Math.random() - 0.5) * 6);
+    }
+
+    // 세련된 하늘 배경 그라데이션
+    let skyGrad = ctx.createLinearGradient(0, 0, 0, cvs.height);
+    if (mapType === 'DESERT') {
+        skyGrad.addColorStop(0, '#78350f'); skyGrad.addColorStop(0.7, '#d97706'); skyGrad.addColorStop(1, '#fef3c7');
+    } else if (mapType === 'SKY') {
+        skyGrad.addColorStop(0, '#312e81'); skyGrad.addColorStop(0.6, '#4f46e5'); skyGrad.addColorStop(1, '#c7d2fe');
+    } else {
+        skyGrad.addColorStop(0, '#0369a1'); skyGrad.addColorStop(0.6, '#38bdf8'); skyGrad.addColorStop(1, '#bae6fd');
+    }
+    ctx.fillStyle = skyGrad;
+    ctx.fillRect(0, 0, cvs.width, cvs.height);
+
+    // 원경 산맥
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.25)';
     ctx.beginPath();
     ctx.moveTo(0, cvs.height);
-    for (let x = 0; x <= cvs.width; x += 4) {
-        const y = getGroundY(x);
-        if (y !== null) ctx.lineTo(x, y);
+    for (let x = 0; x <= cvs.width; x += 20) {
+        ctx.lineTo(x, 260 + Math.sin(x * 0.005) * 50);
     }
     ctx.lineTo(cvs.width, cvs.height);
     ctx.fill();
 
-    ctx.strokeStyle = '#22c55e';
-    ctx.lineWidth = 6;
-    ctx.stroke();
+    // 💡 실시간 파괴 지형 그리기
+    terrain.draw(ctx);
 
+    // 파티클 렌더링
     particles.forEach(p => {
         ctx.save(); ctx.globalAlpha = Math.max(0, p.alpha);
-        ctx.fillStyle = '#f59e0b';
+        ctx.fillStyle = p.color;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill();
         ctx.restore();
     });
@@ -616,12 +729,14 @@ function render() {
     bullets.forEach(b => b.draw());
 
     if (gameOver) {
-        ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
+        ctx.fillStyle = 'rgba(2, 6, 23, 0.88)';
         ctx.fillRect(0, 0, cvs.width, cvs.height);
-        ctx.fillStyle = '#fff'; ctx.font = 'bold 32px Pretendard'; ctx.textAlign = 'center';
-        const win = p1.hp > 0 && !p1.isFallen ? 'P1 승리!' : 'P2 승리!';
-        ctx.fillText(`🏆 ${win}`, cvs.width / 2, cvs.height / 2);
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 32px Pretendard, sans-serif'; ctx.textAlign = 'center';
+        const win = (p1.hp > 0 && !p1.isFallen) ? '🏆 P1 승리!' : '🏆 P2 승리!';
+        ctx.fillText(win, cvs.width / 2, cvs.height / 2);
     }
+
+    ctx.restore();
 }
 
 function loop() {
