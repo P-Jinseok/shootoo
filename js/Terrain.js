@@ -7,86 +7,99 @@ export class Terrain {
         this.canvas.height = height;
         this.ctx = this.canvas.getContext('2d');
         this.currentMapType = 'VALLEY';
+        
+        // 지형 파괴 구멍 데이터를 저장하는 배열
+        this.holes = [];
     }
     
     generate(mapType) {
         this.currentMapType = mapType;
-        this.ctx.clearRect(0, 0, this.width, this.height);
-        
-        if (mapType === 'VALLEY') {
-            // 1. 밸리 계곡 맵
-            this.ctx.fillStyle = '#475569';
-            this.ctx.beginPath();
-            this.ctx.moveTo(0, this.height);
-            for (let x = 0; x <= this.width; x++) {
-                let y = 370 + Math.sin(x * 0.006) * 50 + Math.cos(x * 0.012) * 30;
-                if (x > 380 && x < 640) y += Math.sin((x - 380) / 260 * Math.PI) * 60;
-                this.ctx.lineTo(x, y);
-            }
-            this.ctx.lineTo(this.width, this.height);
-            this.ctx.fill();
-            
-            this.ctx.strokeStyle = '#22c55e';
-            this.ctx.lineWidth = 10;
-            this.ctx.stroke();
-            
-        } else if (mapType === 'SKY_ISLAND') {
-            // 2. 공중 섬 맵 (번지 맵)
-            this.ctx.fillStyle = '#64748b';
-            this.ctx.beginPath();
-            const startX = 120,
-                endX = 904;
-            this.ctx.moveTo(startX, 350);
-            
-            for (let x = startX; x <= endX; x++) {
-                let y = 320 + Math.sin(x * 0.007) * 45 + Math.cos(x * 0.015) * 25;
-                this.ctx.lineTo(x, y);
-            }
-            this.ctx.lineTo(endX - 40, 440);
-            this.ctx.lineTo(this.width / 2, 490);
-            this.ctx.lineTo(startX + 40, 440);
-            this.ctx.closePath();
-            this.ctx.fill();
-            
-            this.ctx.strokeStyle = '#10b981';
-            this.ctx.lineWidth = 10;
-            this.ctx.stroke();
-            
-        } else if (mapType === 'CAVE') {
-            // 3. 울퉁불퉁 동굴 암석 맵
-            this.ctx.fillStyle = '#334155';
-            this.ctx.beginPath();
-            this.ctx.moveTo(0, this.height);
-            
-            for (let x = 0; x <= this.width; x++) {
-                let y = 340 + Math.sin(x * 0.02) * 25 + Math.cos(x * 0.008) * 55;
-                this.ctx.lineTo(x, y);
-            }
-            this.ctx.lineTo(this.width, this.height);
-            this.ctx.fill();
-            
-            this.ctx.strokeStyle = '#d97706';
-            this.ctx.lineWidth = 10;
-            this.ctx.stroke();
-        }
+        this.holes = []; // 지형 파괴 초기화
+        this.redraw();
     }
     
-    getTerrainY(x) {
-        if (this.currentMapType === 'SKY_ISLAND' && (x < 100 || x > this.width - 100)) return null;
-        if (x < 0 || x > this.width) return null;
-        
-        const imgData = this.ctx.getImageData(Math.floor(x), 0, 1, this.height).data;
-        for (let y = 0; y < this.height; y++) {
-            if (imgData[y * 4 + 3] > 0) return y;
+    // 수학 공식 기반 기본 지형 높이 연산
+    getBaseHeight(x) {
+        if (this.currentMapType === 'VALLEY') {
+            let y = 370 + Math.sin(x * 0.006) * 50 + Math.cos(x * 0.012) * 30;
+            if (x > 380 && x < 640) {
+                y += Math.sin((x - 380) / 260 * Math.PI) * 60;
+            }
+            return y;
+        } else if (this.currentMapType === 'SKY_ISLAND') {
+            if (x < 120 || x > this.width - 120) return null; // 공중 섬 밖 양끝 허공
+            return 330 + Math.sin(x * 0.007) * 45 + Math.cos(x * 0.015) * 25;
+        } else if (this.currentMapType === 'CAVE') {
+            return 340 + Math.sin(x * 0.02) * 25 + Math.cos(x * 0.008) * 55;
         }
-        return null;
+        return 370;
+    }
+    
+    // 탱크 위치 착지 및 충돌 검사용 Y 좌표 구하기
+    getTerrainY(x) {
+        const baseY = this.getBaseHeight(x);
+        if (baseY === null) return null; // 번지 맵 양끝 허공
+        
+        // 해당 X 좌표에 파괴된 구멍이 있다면 높이를 구멍 밑으로 떨어뜨림
+        let finalY = baseY;
+        for (const hole of this.holes) {
+            const distX = Math.abs(x - hole.x);
+            if (distX < hole.radius) {
+                // 파괴된 원 영역 내부 높이 연산
+                const holeDepth = Math.sqrt(hole.radius * hole.radius - distX * distX);
+                const holeBottom = hole.y + holeDepth;
+                if (finalY < holeBottom && finalY > hole.y - holeDepth) {
+                    finalY = holeBottom;
+                }
+            }
+        }
+        return finalY;
     }
     
     destroy(cx, cy, radius) {
-        this.ctx.globalCompositeOperation = 'destination-out';
+        this.holes.push({ x: cx, y: cy, radius: radius });
+        this.redraw();
+    }
+    
+    redraw() {
+        this.ctx.clearRect(0, 0, this.width, this.height);
+        
+        // 1. 기본 지형 그리기
+        this.ctx.fillStyle = this.currentMapType === 'CAVE' ? '#334155' : '#475569';
         this.ctx.beginPath();
-        this.ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        
+        if (this.currentMapType === 'SKY_ISLAND') {
+            const startX = 120,
+                endX = this.width - 120;
+            this.ctx.moveTo(startX, this.getBaseHeight(startX));
+            for (let x = startX; x <= endX; x += 2) {
+                this.ctx.lineTo(x, this.getBaseHeight(x));
+            }
+            this.ctx.lineTo(endX - 40, 450);
+            this.ctx.lineTo(this.width / 2, 500);
+            this.ctx.lineTo(startX + 40, 450);
+            this.ctx.closePath();
+        } else {
+            this.ctx.moveTo(0, this.height);
+            for (let x = 0; x <= this.width; x += 2) {
+                this.ctx.lineTo(x, this.getBaseHeight(x));
+            }
+            this.ctx.lineTo(this.width, this.height);
+        }
         this.ctx.fill();
+        
+        // 지형 상단 잔디 띠
+        this.ctx.strokeStyle = this.currentMapType === 'CAVE' ? '#d97706' : '#22c55e';
+        this.ctx.lineWidth = 10;
+        this.ctx.stroke();
+        
+        // 2. 파괴된 구멍들 일괄 깎아내기
+        this.ctx.globalCompositeOperation = 'destination-out';
+        for (const hole of this.holes) {
+            this.ctx.beginPath();
+            this.ctx.arc(hole.x, hole.y, hole.radius, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
         this.ctx.globalCompositeOperation = 'source-over';
     }
     

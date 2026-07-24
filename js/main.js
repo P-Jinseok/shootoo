@@ -77,12 +77,14 @@ function initGame() {
     bullets = [];
     particles = [];
     currentTurn = 1;
+    isCharging = false;
+    currentPower = 0;
     wind = Math.floor(Math.random() * 15) - 7;
 
-    // 💡 1. 맵 지형 먼저 완전 생성
+    // 1. 맵 지형 생성
     terrain.generate(selectedMap);
 
-    // 💡 2. 탱크 인스턴스 생성
+    // 2. 탱크 객체 초기화 (안전 Y 위치)
     players[1] = new Tank(1, selectedP1Type, 220, '#22c55e', '#14532d');
     players[2] = new Tank(2, selectedP2Type, 800, '#ef4444', '#7f1d1d');
 
@@ -109,7 +111,7 @@ window.addEventListener('keyup', e => {
 
 function bindBtn(id, code) {
     const el = document.getElementById(id);
-    if(!el) return;
+    if (!el) return;
     const press = () => { keys[code] = true; if (id === 'btnFire' && !bullets.length && !isCharging && !gameOver) startCharging(); };
     const release = () => { keys[code] = false; if (id === 'btnFire' && isCharging) stopCharging(); };
     el.addEventListener('mousedown', press); el.addEventListener('mouseup', release);
@@ -125,7 +127,7 @@ document.getElementById('btnW1').onclick = () => setWeapon(1);
 document.getElementById('btnW2').onclick = () => setWeapon(2);
 
 function setWeapon(num) {
-    if(!players[currentTurn]) return;
+    if (!players[currentTurn]) return;
     players[currentTurn].weapon = num;
     document.getElementById('btnW1').classList.toggle('active', num === 1);
     document.getElementById('btnW2').classList.toggle('active', num === 2);
@@ -137,7 +139,7 @@ function stopCharging() { isCharging = false; fire(); }
 
 function fire() {
     const p = players[currentTurn];
-    if(!p) return;
+    if (!p) return;
 
     const rad = (p.id === 2 ? (180 - p.angle) : p.angle) * Math.PI / 180;
     const speed = currentPower * 0.26;
@@ -261,7 +263,7 @@ function nextTurn() {
     if (players[1].hp <= 0 || players[2].hp <= 0 || players[1].isFallen || players[2].isFallen) {
         gameOver = true;
         clearInterval(timerInterval);
-        
+
         let winStr = players[1].isFallen ? 'P1 번지! P2 승리!' : (players[2].isFallen ? 'P2 번지! P1 승리!' : (players[1].hp > 0 ? '🏆 P1 승리!' : '🏆 P2 승리!'));
         document.getElementById('winnerText').innerText = winStr;
         document.getElementById('gameOverOverlay').style.display = 'flex';
