@@ -2,65 +2,32 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>포트리스 2 리마스터 - 완전 통합본</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>포트리스 2 리마스터 - 최종완성본</title>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css');
 
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-            margin: 0; padding: 0;
-        }
+        * { box-sizing: border-box; user-select: none; -webkit-user-select: none; margin: 0; padding: 0; }
 
         body {
-            background: #050b14;
-            color: #f8fafc;
-            font-family: 'Pretendard', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            min-height: 100dvh;
-            overflow: hidden;
-            padding: 8px;
+            background: #050b14; color: #f8fafc; font-family: 'Pretendard', sans-serif;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; min-height: 100dvh; overflow: hidden; padding: 8px;
         }
 
         /* ── 1. 로비 화면 ── */
         #selectionLobby {
-            background: rgba(15, 23, 42, 0.95);
-            border: 2px solid #334155;
-            border-radius: 16px;
-            padding: 16px;
-            width: 100%;
-            max-width: 900px;
-            max-height: 95dvh;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
+            background: rgba(15, 23, 42, 0.95); border: 2px solid #334155; border-radius: 16px;
+            padding: 16px; width: 100%; max-width: 900px; max-height: 95dvh; overflow-y: auto;
+            display: flex; flex-direction: column; align-items: center; gap: 12px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
         }
 
-        .lobby-title {
-            font-size: 24px; font-weight: 900;
-            color: #f59e0b; text-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
-            letter-spacing: 1px;
-        }
-
+        .lobby-title { font-size: 24px; font-weight: 900; color: #f59e0b; text-shadow: 0 0 15px rgba(245, 158, 11, 0.5); letter-spacing: 1px; }
         .lobby-content { display: flex; gap: 16px; width: 100%; }
 
-        .select-box {
-            flex: 1; background: #020617;
-            border: 1px solid #1e293b; border-radius: 12px; padding: 10px;
-        }
-
-        .select-box h2, .map-select-box h2 {
-            font-size: 13px; font-weight: 800; color: #94a3b8; margin-bottom: 8px; text-align: center;
-        }
+        .select-box { flex: 1; background: #020617; border: 1px solid #1e293b; border-radius: 12px; padding: 10px; }
+        .select-box h2, .map-select-box h2 { font-size: 13px; font-weight: 800; color: #94a3b8; margin-bottom: 8px; text-align: center; }
 
         .tank-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 
@@ -96,7 +63,7 @@
         }
         .start-btn:active { transform: scale(0.96); }
 
-        /* ── 2. 게임 화면 (시야 확보용 투명 UI) ── */
+        /* ── 2. 게임 메인 화면 (시야 투명 UI) ── */
         #gameCabinet {
             position: relative; width: 100vw; max-width: 1024px;
             aspect-ratio: 1024 / 576; background: #020617;
@@ -112,11 +79,9 @@
         }
 
         .hud-card {
-            background: rgba(10, 15, 30, 0.35); 
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255, 255, 255, 0.2); 
-            padding: 5px 8px; border-radius: 8px;
-            width: 170px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            background: rgba(10, 15, 30, 0.35); backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.2); padding: 5px 8px; border-radius: 8px;
+            width: 160px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
         .hud-card.active { border-color: #f59e0b; box-shadow: 0 0 15px rgba(245, 158, 11, 0.5); }
 
@@ -132,10 +97,8 @@
         .move-gauge-fill { height: 100%; width: 100%; background: #38bdf8; }
 
         #centerHUD {
-            background: rgba(10, 15, 30, 0.35); 
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255, 255, 255, 0.2); 
-            padding: 4px 10px; border-radius: 8px;
+            background: rgba(10, 15, 30, 0.35); backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.2); padding: 4px 10px; border-radius: 8px;
             text-align: center; min-width: 100px;
         }
         .wind-title { font-size: 9px; color: #cbd5e1; font-weight: 800; }
@@ -144,32 +107,24 @@
 
         #bottomGaugePanel {
             position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
-            width: 40%; max-width: 400px; 
-            background: rgba(15, 23, 42, 0.4);
-            backdrop-filter: blur(4px); border: 1px solid rgba(255, 255, 255, 0.2); 
+            width: 40%; max-width: 400px; background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(4px); border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 4px 10px; border-radius: 8px; z-index: 10;
         }
         .power-bar-bg { width: 100%; height: 10px; background: rgba(0,0,0,0.6); border-radius: 5px; overflow: hidden; border: 1px solid #64748b; }
         .power-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #22c55e, #eab308, #ef4444); }
 
-        /* 게임 오버 레이어 */
         #gameOverOverlay {
             position: absolute; inset: 0; background: rgba(2, 6, 23, 0.88);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             gap: 16px; z-index: 20;
         }
 
-        #winnerText { font-size: 32px; font-weight: 900; color: #f8fafc; text-shadow: 0 0 20px rgba(56, 189, 248, 0.6); }
+        #winnerText { font-size: 30px; font-weight: 900; color: #f8fafc; text-shadow: 0 0 20px rgba(56, 189, 248, 0.6); }
         .gameover-btns { display: flex; gap: 12px; }
 
-        .restart-btn {
-            background: #0284c7; color: #fff; border: none; padding: 10px 20px;
-            border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer;
-        }
-        .lobby-btn {
-            background: #334155; color: #fff; border: none; padding: 10px 20px;
-            border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer;
-        }
+        .restart-btn { background: #0284c7; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; }
+        .lobby-btn { background: #334155; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; }
 
         #arcadePad {
             margin-top: 6px; display: flex; gap: 8px; align-items: center; justify-content: center;
@@ -187,28 +142,14 @@
         .fire-pad-btn { background: linear-gradient(180deg, #ef4444, #dc2626); padding: 6px 18px; }
         .weapon-btn { background: #1e293b; border: 1px solid #64748b; color: #94a3b8; padding: 5px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer; }
         .weapon-btn.active { background: #d97706; color: #fff; border-color: #fef08a; }
-
-        @media screen and (orientation: landscape) and (max-height: 500px) {
-            #selectionLobby { max-height: 98dvh; padding: 8px; }
-            .lobby-content { gap: 8px; }
-            .tank-desc { display: none; }
-            #gameCabinet { max-height: calc(100dvh - 52px); }
-            .hud-card { width: 120px; padding: 2px 4px; }
-            .move-gauge-wrapper { display: none; }
-            #centerHUD { padding: 2px 6px; min-width: 80px; }
-            #bottomGaugePanel { bottom: 4px; padding: 2px 6px; width: 35%; }
-            #arcadePad { margin-top: 2px; padding: 3px 8px; }
-        }
     </style>
 </head>
 <body>
 
-<!-- 🎮 1. 탱크 & 맵 선택 로비 -->
+<!-- 1. 선택 로비 -->
 <div id="selectionLobby">
     <h1 class="lobby-title">FORTRESS 2 REMASTERED</h1>
-    
     <div class="lobby-content">
-        <!-- 1P 선택 -->
         <div class="select-box">
             <h2>1P 탱크 선택</h2>
             <div id="p1TankSelect" class="tank-grid">
@@ -221,7 +162,6 @@
             </div>
         </div>
 
-        <!-- 2P 선택 -->
         <div class="select-box">
             <h2>2P 탱크 선택</h2>
             <div id="p2TankSelect" class="tank-grid">
@@ -235,7 +175,6 @@
         </div>
     </div>
 
-    <!-- 맵 선택 -->
     <div class="map-select-box">
         <h2>전장 맵 선택</h2>
         <div id="mapSelect" class="map-grid">
@@ -248,7 +187,7 @@
     <button id="btnStartGame" class="start-btn">GAME START 🔥</button>
 </div>
 
-<!-- ⚔️ 2. 게임 화면 -->
+<!-- 2. 게임 캐비넷 -->
 <div id="gameCabinet" style="display: none;">
     <div id="uiOverlay">
         <div id="p1Card" class="hud-card active">
@@ -278,7 +217,6 @@
         <div class="power-bar-bg"><div id="powerGauge" class="power-bar-fill"></div></div>
     </div>
 
-    <!-- 🏆 재시작 오버레이 -->
     <div id="gameOverOverlay" style="display: none;">
         <h1 id="winnerText">🏆 P1 승리!</h1>
         <div class="gameover-btns">
@@ -312,11 +250,9 @@
 </div>
 
 <script>
-// ── [통합 메인 스크립트] ──
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// 지형 시스템
 class Terrain {
     constructor(width, height) {
         this.width = width;
@@ -414,7 +350,6 @@ class Terrain {
     }
 }
 
-// 포탄 클래스
 class Bullet {
     constructor(shooterId, x, y, vx, vy, type, radius) {
         this.shooterId = shooterId;
@@ -459,13 +394,12 @@ class Bullet {
     }
 }
 
-// 탱크 클래스
 class Tank {
-    constructor(id, tankType, x, color, darkColor) {
+    constructor(id, tankType, x, color, darkColor, initialGroundY) {
         this.id = id;
         this.tankType = tankType;
         this.x = x;
-        this.y = 100;
+        this.y = initialGroundY || 300;
         this.hp = 100; this.maxHp = 100;
         this.angle = 45; this.weapon = 1;
         this.moveEnergy = 100;
@@ -475,14 +409,16 @@ class Tank {
 
     update(terrain) {
         if (this.isFallen) return;
+
         const groundY = terrain.getTerrainY(this.x);
         
         if (groundY === null) {
             this.y += 6;
             if (this.y > 620) { this.hp = 0; this.isFallen = true; }
         } else {
-            if (this.y < groundY) this.y = Math.min(this.y + 6, groundY);
-            else this.y = groundY;
+            if (Math.abs(this.y - groundY) > 0.1) {
+                this.y = groundY;
+            }
         }
 
         if (this.recoil > 0) this.recoil -= 0.5;
@@ -553,7 +489,6 @@ class Tank {
     }
 }
 
-// 게임 변수 및 상태
 const terrain = new Terrain(canvas.width, canvas.height);
 let selectedP1Type = 'CATAPULT';
 let selectedP2Type = 'CANNON';
@@ -573,28 +508,25 @@ let timerInterval = null;
 const keys = {};
 
 function setupLobbyEvents() {
-    const p1Cards = document.querySelectorAll('#p1TankSelect .tank-card');
-    p1Cards.forEach(card => {
+    document.querySelectorAll('#p1TankSelect .tank-card').forEach(card => {
         card.addEventListener('click', () => {
-            p1Cards.forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('#p1TankSelect .tank-card').forEach(c => c.classList.remove('active'));
             card.classList.add('active');
             selectedP1Type = card.dataset.tank;
         });
     });
 
-    const p2Cards = document.querySelectorAll('#p2TankSelect .tank-card');
-    p2Cards.forEach(card => {
+    document.querySelectorAll('#p2TankSelect .tank-card').forEach(card => {
         card.addEventListener('click', () => {
-            p2Cards.forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('#p2TankSelect .tank-card').forEach(c => c.classList.remove('active'));
             card.classList.add('active');
             selectedP2Type = card.dataset.tank;
         });
     });
 
-    const mapCards = document.querySelectorAll('#mapSelect .map-card');
-    mapCards.forEach(card => {
+    document.querySelectorAll('#mapSelect .map-card').forEach(card => {
         card.addEventListener('click', () => {
-            mapCards.forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('#mapSelect .map-card').forEach(c => c.classList.remove('active'));
             card.classList.add('active');
             selectedMap = card.dataset.map;
         });
@@ -631,8 +563,11 @@ function initGame() {
 
     terrain.generate(selectedMap);
 
-    players[1] = new Tank(1, selectedP1Type, 220, '#22c55e', '#14532d');
-    players[2] = new Tank(2, selectedP2Type, 800, '#ef4444', '#7f1d1d');
+    const p1GroundY = terrain.getTerrainY(220);
+    const p2GroundY = terrain.getTerrainY(800);
+
+    players[1] = new Tank(1, selectedP1Type, 220, '#22c55e', '#14532d', p1GroundY);
+    players[2] = new Tank(2, selectedP2Type, 800, '#ef4444', '#7f1d1d', p2GroundY);
 
     document.getElementById('p1Title').innerText = `P1 · ${players[1].tankType}`;
     document.getElementById('p2Title').innerText = `P2 · ${players[2].tankType}`;
@@ -647,7 +582,7 @@ window.addEventListener('keydown', e => {
     keys[e.code] = true;
     if (e.code === 'Digit1') setWeapon(1);
     if (e.code === 'Digit2') setWeapon(2);
-    if (e.code === 'Space' && !bullets.length && !isCharging && !gameOver) startCharging();
+    if (e.code === 'Space' && !bullets.length && !isCharging && !gameOver && players[1]) startCharging();
 });
 
 window.addEventListener('keyup', e => {
@@ -658,11 +593,20 @@ window.addEventListener('keyup', e => {
 function bindBtn(id, code) {
     const el = document.getElementById(id);
     if (!el) return;
-    const press = () => { keys[code] = true; if (id === 'btnFire' && !bullets.length && !isCharging && !gameOver) startCharging(); };
-    const release = () => { keys[code] = false; if (id === 'btnFire' && isCharging) stopCharging(); };
-    el.addEventListener('mousedown', press); el.addEventListener('mouseup', release);
-    el.addEventListener('touchstart', (e) => { e.preventDefault(); press(); });
-    el.addEventListener('touchend', (e) => { e.preventDefault(); release(); });
+    const press = (e) => {
+        if(e) e.preventDefault();
+        keys[code] = true;
+        if (id === 'btnFire' && !bullets.length && !isCharging && !gameOver && players[1]) startCharging();
+    };
+    const release = (e) => {
+        if(e) e.preventDefault();
+        keys[code] = false;
+        if (id === 'btnFire' && isCharging) stopCharging();
+    };
+    el.addEventListener('mousedown', press);
+    el.addEventListener('mouseup', release);
+    el.addEventListener('touchstart', press, {passive: false});
+    el.addEventListener('touchend', release, {passive: false});
 }
 
 bindBtn('btnLeft', 'KeyA'); bindBtn('btnRight', 'KeyD');
@@ -745,7 +689,7 @@ function explode(x, y, type) {
 }
 
 function update() {
-    if (document.getElementById('gameCabinet').style.display === 'none' || !players[1]) return;
+    if (!players[1]) return;
 
     players.slice(1).forEach(p => p && p.update(terrain));
 
@@ -838,7 +782,7 @@ function resetTimer() {
 }
 
 function render() {
-    if (document.getElementById('gameCabinet').style.display === 'none' || !players[1]) return;
+    if (!players[1]) return;
 
     let skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
     skyGrad.addColorStop(0, '#0284c7');
