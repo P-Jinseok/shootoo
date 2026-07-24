@@ -1,0 +1,196 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css');
+
+* {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    margin: 0; padding: 0;
+}
+
+body {
+    background: #050b14;
+    color: #f8fafc;
+    font-family: 'Pretendard', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: hidden;
+    padding: 8px;
+}
+
+/* ── 1. 로비 / 선택 화면 CSS ── */
+#selectionLobby {
+    background: rgba(15, 23, 42, 0.95);
+    border: 2px solid #334155;
+    border-radius: 16px;
+    padding: 16px;
+    width: 100%;
+    max-width: 900px;
+    max-height: 95dvh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+}
+
+.lobby-title {
+    font-size: 24px; font-weight: 900;
+    color: #f59e0b; text-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+    letter-spacing: 1px;
+}
+
+.lobby-content {
+    display: flex; gap: 16px; width: 100%;
+}
+
+.select-box {
+    flex: 1; background: #020617;
+    border: 1px solid #1e293b; border-radius: 12px; padding: 10px;
+}
+
+.select-box h2, .map-select-box h2 {
+    font-size: 13px; font-weight: 800; color: #94a3b8; margin-bottom: 8px; text-align: center;
+}
+
+.tank-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+}
+
+.tank-card {
+    background: #0f172a; border: 2px solid #334155; border-radius: 8px;
+    padding: 6px; cursor: pointer; transition: all 0.2s;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+}
+
+.tank-card:hover { border-color: #38bdf8; }
+.tank-card.active { border-color: #f59e0b; background: rgba(245, 158, 11, 0.15); box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
+
+.tank-title { font-size: 11px; font-weight: 800; color: #f8fafc; margin-top: 2px; }
+.tank-desc { font-size: 9px; color: #64748b; margin-top: 2px; }
+
+.map-select-box { width: 100%; background: #020617; border: 1px solid #1e293b; border-radius: 12px; padding: 10px; }
+.map-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+.map-card {
+    background: #0f172a; border: 2px solid #334155; border-radius: 8px;
+    padding: 8px; cursor: pointer; text-align: center; transition: all 0.2s;
+}
+
+.map-card.active { border-color: #38bdf8; background: rgba(56, 189, 248, 0.15); }
+.map-title { font-size: 12px; font-weight: 800; color: #38bdf8; }
+.map-desc { font-size: 9px; color: #94a3b8; margin-top: 2px; }
+
+.start-btn {
+    background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff;
+    border: none; padding: 10px 32px; border-radius: 10px;
+    font-size: 16px; font-weight: 900; cursor: pointer;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.5);
+    transition: transform 0.1s;
+}
+.start-btn:active { transform: scale(0.96); }
+
+/* ── 2. 게임 캐비넷 CSS ── */
+#gameCabinet {
+    position: relative; width: 100vw; max-width: 1024px;
+    aspect-ratio: 1024 / 576; background: #020617;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95);
+    overflow: hidden; border-radius: 12px; flex-shrink: 1;
+}
+
+canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+
+#uiOverlay {
+    position: absolute; top: 8px; left: 12px; right: 12px;
+    display: flex; justify-content: space-between; pointer-events: none; z-index: 10;
+}
+
+.hud-card {
+    background: rgba(10, 15, 30, 0.85); backdrop-filter: blur(10px);
+    border: 2px solid #334155; padding: 6px 10px; border-radius: 10px;
+    width: 200px; box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+}
+.hud-card.active { border-color: #f59e0b; box-shadow: 0 0 20px rgba(245, 158, 11, 0.4); }
+
+.hud-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
+.tank-label { font-weight: 800; font-size: 12px; text-shadow: 1px 1px 2px #000; }
+.angle-badge { font-size: 10px; color: #fbbf24; background: rgba(0,0,0,0.6); padding: 2px 5px; border-radius: 4px; font-weight: 700; }
+
+.gauge-bar-bg { width: 100%; height: 8px; background: #0f172a; border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.15); }
+.gauge-fill { height: 100%; width: 100%; transition: width 0.25s ease-out; }
+
+.move-gauge-wrapper { margin-top: 3px; display: flex; align-items: center; gap: 6px; font-size: 9px; color: #94a3b8; font-weight: 700; }
+.move-gauge-bg { flex-grow: 1; height: 4px; background: #0f172a; border-radius: 2px; overflow: hidden; }
+.move-gauge-fill { height: 100%; width: 100%; background: #38bdf8; }
+
+#centerHUD {
+    background: rgba(10, 15, 30, 0.9); backdrop-filter: blur(10px);
+    border: 2px solid #334155; padding: 6px 14px; border-radius: 10px;
+    text-align: center; min-width: 120px;
+}
+.wind-title { font-size: 10px; color: #94a3b8; font-weight: 800; }
+.wind-val-box { font-size: 14px; font-weight: 900; color: #38bdf8; margin: 1px 0; }
+.turn-timer { font-size: 16px; font-weight: 900; color: #ef4444; }
+
+#bottomGaugePanel {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    width: 48%; max-width: 480px; background: rgba(15, 23, 42, 0.92);
+    backdrop-filter: blur(12px); border: 1px solid #475569; padding: 6px 12px;
+    border-radius: 8px; z-index: 10;
+}
+.power-bar-bg { width: 100%; height: 12px; background: #020617; border-radius: 6px; overflow: hidden; border: 1px solid #64748b; }
+.power-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #22c55e, #eab308, #ef4444); }
+
+/* 🏆 게임 오버 오버레이 */
+#gameOverOverlay {
+    position: absolute; inset: 0; background: rgba(2, 6, 23, 0.88);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 16px; z-index: 20;
+}
+
+#winnerText { font-size: 32px; font-weight: 900; color: #f8fafc; text-shadow: 0 0 20px rgba(56, 189, 248, 0.6); }
+
+.gameover-btns { display: flex; gap: 12px; }
+
+.restart-btn {
+    background: #0284c7; color: #fff; border: none; padding: 10px 20px;
+    border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer;
+}
+
+.lobby-btn {
+    background: #334155; color: #fff; border: none; padding: 10px 20px;
+    border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer;
+}
+
+#arcadePad {
+    margin-top: 6px; display: flex; gap: 8px; align-items: center; justify-content: center;
+    background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); padding: 6px 12px;
+    border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); width: 100%; max-width: 1024px;
+    flex-shrink: 0;
+}
+
+.pad-btn {
+    background: linear-gradient(180deg, #334155, #1e293b); color: #f8fafc; border: 1px solid #475569;
+    padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 11px; cursor: pointer;
+}
+.pad-btn:active, .pad-btn.pressed { background: #0284c7; }
+
+.fire-pad-btn { background: linear-gradient(180deg, #ef4444, #dc2626); padding: 6px 18px; }
+.weapon-btn { background: #1e293b; border: 1px solid #64748b; color: #94a3b8; padding: 5px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer; }
+.weapon-btn.active { background: #d97706; color: #fff; border-color: #fef08a; }
+
+@media screen and (orientation: landscape) and (max-height: 500px) {
+    #selectionLobby { max-height: 98dvh; padding: 8px; }
+    .lobby-content { gap: 8px; }
+    .tank-desc { display: none; }
+    #gameCabinet { max-height: calc(100dvh - 52px); }
+    .hud-card { width: 130px; padding: 3px 6px; }
+    .move-gauge-wrapper { display: none; }
+    #centerHUD { padding: 3px 8px; min-width: 90px; }
+    #bottomGaugePanel { bottom: 4px; padding: 3px 8px; width: 40%; }
+    #arcadePad { margin-top: 2px; padding: 3px 8px; }
+}
