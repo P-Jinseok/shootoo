@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>포트리스 2 리마스터 - 조작버그 수정본</title>
+    <title>포트리스 2 리마스터 - 최종 조작 수정본</title>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css');
 
@@ -15,7 +15,7 @@
             min-height: 100vh; min-height: 100dvh; overflow: hidden; padding: 8px;
         }
 
-        /* ── 1. 선택 로비 ── */
+        /* ── 1. 로비 화면 ── */
         #selectionLobby {
             background: rgba(15, 23, 42, 0.95); border: 2px solid #334155; border-radius: 16px;
             padding: 16px; width: 100%; max-width: 900px; max-height: 95dvh; overflow-y: auto;
@@ -63,7 +63,7 @@
         }
         .start-btn:active { transform: scale(0.96); }
 
-        /* ── 2. 게임 화면 ── */
+        /* ── 2. 게임 캐비넷 ── */
         #gameCabinet {
             position: relative; width: 100vw; max-width: 1024px;
             aspect-ratio: 1024 / 576; background: #020617;
@@ -135,19 +135,19 @@
 
         .pad-btn {
             background: linear-gradient(180deg, #334155, #1e293b); color: #f8fafc; border: 1px solid #475569;
-            padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 11px; cursor: pointer;
-            touch-action: manipulation;
+            padding: 8px 14px; border-radius: 6px; font-weight: 800; font-size: 12px; cursor: pointer;
+            touch-action: none;
         }
         .pad-btn:active, .pad-btn.pressed { background: #0284c7; }
 
-        .fire-pad-btn { background: linear-gradient(180deg, #ef4444, #dc2626); padding: 6px 18px; }
-        .weapon-btn { background: #1e293b; border: 1px solid #64748b; color: #94a3b8; padding: 5px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer; }
+        .fire-pad-btn { background: linear-gradient(180deg, #ef4444, #dc2626); padding: 8px 22px; }
+        .weapon-btn { background: #1e293b; border: 1px solid #64748b; color: #94a3b8; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; }
         .weapon-btn.active { background: #d97706; color: #fff; border-color: #fef08a; }
     </style>
 </head>
 <body>
 
-<!-- 로비 -->
+<!-- 1. 선택 로비 -->
 <div id="selectionLobby">
     <h1 class="lobby-title">FORTRESS 2 REMASTERED</h1>
     <div class="lobby-content">
@@ -188,7 +188,7 @@
     <button id="btnStartGame" class="start-btn">GAME START 🔥</button>
 </div>
 
-<!-- 게임 화면 -->
+<!-- 2. 게임 화면 -->
 <div id="gameCabinet" style="display: none;">
     <div id="uiOverlay">
         <div id="p1Card" class="hud-card active">
@@ -365,7 +365,7 @@ class Bullet {
         this.age++;
         if (this.type === 'GUIDED' && enemyTank && !enemyTank.isFallen) {
             const dist = Math.hypot(enemyTank.x - this.x, (enemyTank.y - 10) - this.y);
-            if (dist < 180) {
+            if (dist < 200) {
                 const angleToEnemy = Math.atan2((enemyTank.y - 10) - this.y, enemyTank.x - this.x);
                 const speed = Math.hypot(this.vx, this.vy);
                 this.vx = this.vx * 0.82 + Math.cos(angleToEnemy) * speed * 0.18;
@@ -488,6 +488,7 @@ class Tank {
     }
 }
 
+// ── 글로벌 상태 관리 ──
 const terrain = new Terrain(canvas.width, canvas.height);
 let selectedP1Type = 'CATAPULT';
 let selectedP2Type = 'CANNON';
@@ -504,7 +505,13 @@ let gameOver = false;
 let turnTimer = 20;
 let timerInterval = null;
 
-const keys = {};
+// ── 핵심 제어 입력 플래그 ──
+const ctrlState = {
+    left: false,
+    right: false,
+    up: false,
+    down: false
+};
 
 function setupLobbyEvents() {
     document.querySelectorAll('#p1TankSelect .tank-card').forEach(card => {
@@ -560,6 +567,12 @@ function initGame() {
     currentPower = 0;
     wind = Math.floor(Math.random() * 15) - 7;
 
+    // 조작 상태 리셋
+    ctrlState.left = false;
+    ctrlState.right = false;
+    ctrlState.up = false;
+    ctrlState.down = false;
+
     terrain.generate(selectedMap);
 
     const p1GroundY = terrain.getTerrainY(220);
@@ -577,53 +590,90 @@ function initGame() {
     resetTimer();
 }
 
-// 💡 [키보드 이벤트 수정]
-window.addEventListener('keydown', e => {
-    keys[e.code] = true;
-    if (e.code === 'Digit1') setWeapon(1);
-    if (e.code === 'Digit2') setWeapon(2);
-    if (e.code === 'Space' && !bullets.length && !isCharging && !gameOver && players[currentTurn]) {
-        startCharging();
-    }
-});
+// ── 💡 [전면 재설계된 조작 처리기] ──
+// 키보드 키 변환 함수 (방향키, A/D/W/S, 한글 키보드 통합 판별)
+function processKeyEvent(e, isPressed) {
+    const key = e.key ? e.key.toLowerCase() : '';
+    const code = e.code || '';
 
-window.addEventListener('keyup', e => {
-    keys[e.code] = false;
-    if (e.code === 'Space' && isCharging) {
-        stopCharging();
+    // 왼쪽 이동 (Left Arrow, KeyA, 'a', 'ㅁ')
+    if (code === 'ArrowLeft' || code === 'KeyA' || key === 'a' || key === 'ㅁ') {
+        ctrlState.left = isPressed;
     }
-});
+    // 오른쪽 이동 (Right Arrow, KeyD, 'd', 'ㅇ')
+    if (code === 'ArrowRight' || code === 'KeyD' || key === 'd' || key === 'ㅇ') {
+        ctrlState.right = isPressed;
+    }
+    // 각도 올리기 (Up Arrow, KeyW, 'w', 'ㅈ')
+    if (code === 'ArrowUp' || code === 'KeyW' || key === 'w' || key === 'ㅈ') {
+        ctrlState.up = isPressed;
+    }
+    // 각도 내리기 (Down Arrow, KeyS, 's', 'ㄴ')
+    if (code === 'ArrowDown' || code === 'KeyS' || key === 's' || key === 'ㄴ') {
+        ctrlState.down = isPressed;
+    }
 
-// 💡 [터치/마우스 조작 바인딩 완벽 수정]
-function bindBtn(id, code) {
+    // 무기 전환
+    if (isPressed && (code === 'Digit1' || key === '1')) setWeapon(1);
+    if (isPressed && (code === 'Digit2' || key === '2')) setWeapon(2);
+
+    // 발사 (Spacebar)
+    if (code === 'Space' || key === ' ') {
+        if (isPressed) {
+            if (!bullets.length && !isCharging && !gameOver && players[currentTurn]) {
+                startCharging();
+            }
+        } else {
+            if (isCharging) stopCharging();
+        }
+    }
+}
+
+window.addEventListener('keydown', e => processKeyEvent(e, true));
+window.addEventListener('keyup', e => processKeyEvent(e, false));
+
+// 💡 [PointerEvent 기반 화면 가상 패널 버튼 처리]
+function bindPadButton(id, dirKey) {
     const el = document.getElementById(id);
     if (!el) return;
 
-    const start = () => {
-        keys[code] = true;
-        if (id === 'btnFire' && !bullets.length && !isCharging && !gameOver && players[currentTurn]) {
-            startCharging();
+    el.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        if (dirKey === 'fire') {
+            if (!bullets.length && !isCharging && !gameOver && players[currentTurn]) {
+                startCharging();
+            }
+        } else {
+            ctrlState[dirKey] = true;
         }
+        el.classList.add('pressed');
+    });
+
+    const release = (e) => {
+        if (e) e.preventDefault();
+        if (dirKey === 'fire') {
+            if (isCharging) stopCharging();
+        } else {
+            ctrlState[dirKey] = false;
+        }
+        el.classList.remove('pressed');
     };
 
-    const end = () => {
-        keys[code] = false;
-        if (id === 'btnFire' && isCharging) {
-            stopCharging();
-        }
-    };
-
-    el.onmousedown = start;
-    el.onmouseup = end;
-    el.ontouchstart = (e) => { start(); };
-    el.ontouchend = (e) => { end(); };
+    el.addEventListener('pointerup', release);
+    el.addEventListener('pointerleave', release);
+    el.addEventListener('pointercancel', release);
 }
 
-bindBtn('btnLeft', 'KeyA');
-bindBtn('btnRight', 'KeyD');
-bindBtn('btnUp', 'KeyW');
-bindBtn('btnDown', 'KeyS');
-bindBtn('btnFire', 'Space');
+bindPadButton('btnLeft', 'left');
+bindPadButton('btnRight', 'right');
+bindPadButton('btnUp', 'up');
+bindPadButton('btnDown', 'down');
+bindPadButton('btnFire', 'fire');
+
+// 전역 예외 처리: 손가락/마우스를 화면 밖으로 뗐을 때 조작 락 방지
+window.addEventListener('pointerup', () => {
+    if (isCharging) stopCharging();
+});
 
 document.getElementById('btnW1').onclick = () => setWeapon(1);
 document.getElementById('btnW2').onclick = () => setWeapon(2);
@@ -700,20 +750,30 @@ function explode(x, y, type) {
     });
 }
 
-// 💡 [탱크 조작 물리 업데이트 수정]
 function update() {
     if (!players[1]) return;
 
     players.slice(1).forEach(p => p && p.update(terrain));
 
+    // 💡 [탱크 물리 좌표 이동 및 각도 변경]
     if (!bullets.length && !gameOver) {
         const cur = players[currentTurn];
         if (cur) {
-            if (keys['KeyA'] && cur.x > 80 && cur.moveEnergy > 0) { cur.x -= 1.5; cur.moveEnergy -= 0.4; }
-            if (keys['KeyD'] && cur.x < canvas.width - 80 && cur.moveEnergy > 0) { cur.x += 1.5; cur.moveEnergy -= 0.4; }
-            if (keys['KeyW']) cur.angle = Math.min(cur.angle + 1, 90);
-            if (keys['KeyS']) cur.angle = Math.max(cur.angle - 1, 0);
-            if (isCharging) currentPower = Math.min(currentPower + 0.85, 100);
+            if (ctrlState.left && cur.x > 80 && cur.moveEnergy > 0) {
+                cur.x -= 1.8; cur.moveEnergy -= 0.4;
+            }
+            if (ctrlState.right && cur.x < canvas.width - 80 && cur.moveEnergy > 0) {
+                cur.x += 1.8; cur.moveEnergy -= 0.4;
+            }
+            if (ctrlState.up) {
+                cur.angle = Math.min(cur.angle + 1, 90);
+            }
+            if (ctrlState.down) {
+                cur.angle = Math.max(cur.angle - 1, 0);
+            }
+            if (isCharging) {
+                currentPower = Math.min(currentPower + 0.9, 100);
+            }
         }
     }
 
