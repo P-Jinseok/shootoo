@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>포트리스 2 리마스터</title>
+    <title>포트리스 2 리마스터 - 고퀄리티 그래픽 에디션</title>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css');
 
@@ -20,37 +20,27 @@
             background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
             color: #f8fafc;
             font-family: 'Pretendard', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            min-height: 100dvh;
-            overflow: hidden;
-            padding: 6px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            min-height: 100vh; min-height: 100dvh;
+            overflow: hidden; padding: 6px;
         }
 
-        /* ── 1. 로비 화면 ── */
+        /* ── 1. 로비 ── */
         #lobby {
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 20px;
-            padding: 20px;
-            width: 100%;
-            max-width: 800px;
-            max-height: 95dvh;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 14px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px; padding: 20px;
+            width: 100%; max-width: 820px;
+            max-height: 95dvh; overflow-y: auto;
+            display: flex; flex-direction: column;
+            align-items: center; gap: 14px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
         }
 
         .lobby-title {
-            font-size: 22px;
-            font-weight: 900;
+            font-size: 24px; font-weight: 900;
             background: linear-gradient(135deg, #fbbf24, #f59e0b);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -58,162 +48,113 @@
         }
 
         .lobby-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            width: 100%;
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 12px; width: 100%;
         }
 
         .select-box {
-            background: rgba(2, 6, 23, 0.6);
+            background: rgba(2, 6, 23, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 14px;
-            padding: 10px;
+            border-radius: 14px; padding: 12px;
         }
 
         .select-box h3 {
-            font-size: 12px;
-            color: #94a3b8;
-            margin-bottom: 8px;
-            text-align: center;
-            font-weight: 800;
+            font-size: 13px; color: #94a3b8;
+            margin-bottom: 8px; text-align: center; font-weight: 800;
         }
 
         .btn-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
         }
 
         .opt-btn {
-            background: #1e293b;
-            color: #94a3b8;
+            background: #1e293b; color: #94a3b8;
             border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 8px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 11px;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.2s;
+            padding: 8px 6px; border-radius: 8px;
+            font-weight: 700; font-size: 11px;
+            cursor: pointer; text-align: center;
         }
 
         .opt-btn.active {
             background: linear-gradient(135deg, #0284c7, #0369a1);
-            color: #fff;
-            border-color: #38bdf8;
+            color: #fff; border-color: #38bdf8;
             box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
         }
 
         .map-box {
-            width: 100%;
-            background: rgba(2, 6, 23, 0.6);
+            width: 100%; background: rgba(2, 6, 23, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 14px;
-            padding: 10px;
+            border-radius: 14px; padding: 12px;
         }
 
         .map-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
         }
 
         .start-btn {
             background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: #fff;
-            border: none;
-            padding: 12px 40px;
-            font-size: 16px;
-            font-weight: 900;
-            border-radius: 12px;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.5);
-            transition: transform 0.1s;
+            color: #fff; border: none; padding: 12px 40px;
+            font-size: 16px; font-weight: 900; border-radius: 12px;
+            cursor: pointer; box-shadow: 0 4px 20px rgba(239, 68, 68, 0.5);
         }
         .start-btn:active { transform: scale(0.96); }
 
         /* ── 2. 게임 화면 ── */
         #gameArea {
-            display: none;
-            position: relative;
-            width: 100vw;
-            max-width: 960px;
-            aspect-ratio: 16/9;
-            background: #020617;
-            border-radius: 16px;
-            overflow: hidden;
+            display: none; position: relative;
+            width: 100vw; max-width: 960px; aspect-ratio: 16/9;
+            background: #020617; border-radius: 16px; overflow: hidden;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.1);
         }
 
         canvas { display: block; width: 100%; height: 100%; }
 
         #hud {
-            position: absolute;
-            top: 10px; left: 12px; right: 12px;
-            display: flex;
-            justify-content: space-between;
-            pointer-events: none;
-            z-index: 10;
+            position: absolute; top: 10px; left: 12px; right: 12px;
+            display: flex; justify-content: space-between;
+            pointer-events: none; z-index: 10;
         }
 
         .hud-box {
-            background: rgba(15, 23, 42, 0.4);
+            background: rgba(15, 23, 42, 0.45);
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 6px 12px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: 800;
+            padding: 6px 12px; border-radius: 10px;
+            font-size: 11px; font-weight: 800;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
         /* ── 3. 하단 세련된 아케이드 패널 ── */
         #pad {
-            display: none;
-            margin-top: 8px;
-            gap: 8px;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            max-width: 960px;
-            z-index: 50;
+            display: none; margin-top: 8px; gap: 8px;
+            justify-content: center; align-items: center;
+            width: 100%; max-width: 960px; z-index: 50;
         }
 
         .pad-btn {
             background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
-            color: #f8fafc;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            padding: 10px 16px;
-            font-size: 12px;
-            font-weight: 800;
-            border-radius: 10px;
-            cursor: pointer;
+            color: #f8fafc; border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 10px 16px; font-size: 12px; font-weight: 800;
+            border-radius: 10px; cursor: pointer;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-            transition: background 0.1s;
         }
 
         .pad-btn.pressed {
-            background: #0284c7;
-            border-color: #38bdf8;
+            background: #0284c7; border-color: #38bdf8;
             box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
         }
 
         .fire-btn {
             background: linear-gradient(135deg, #ef4444, #dc2626);
-            border-color: rgba(255, 255, 255, 0.2);
-            padding: 10px 24px;
+            border-color: rgba(255, 255, 255, 0.2); padding: 10px 24px;
         }
 
         .fire-btn.pressed {
-            background: #b91c1c;
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+            background: #b91c1c; box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
         }
 
         .wep-btn {
-            background: #0f172a;
-            border: 1px solid #334155;
-            color: #f59e0b;
+            background: #0f172a; border: 1px solid #334155; color: #f59e0b;
         }
     </style>
 </head>
@@ -289,7 +230,8 @@ let currentTurn = 1;
 let wind = 0;
 let isCharging = false;
 let power = 0;
-let bullet = null;
+let bullets = [];
+let particles = [];
 let gameOver = false;
 
 const inputs = { left: false, right: false, up: false, down: false };
@@ -306,21 +248,25 @@ function getGroundY(x) {
     return base;
 }
 
+/* ── 고퀄리티 디테일 탱크 클래스 ── */
 class Tank {
-    constructor(id, type, x, color) {
+    constructor(id, type, x, mainColor, darkColor) {
         this.id = id;
         this.type = type;
         this.x = x;
         this.y = getGroundY(x) || 380;
-        this.color = color;
+        this.mainColor = mainColor;
+        this.darkColor = darkColor;
         this.hp = 100;
         this.angle = 45;
         this.wep = 1;
         this.isFallen = false;
+        this.animFrame = 0;
     }
 
     update() {
         if (this.isFallen) return;
+        this.animFrame++;
         const gY = getGroundY(this.x);
         if (gY === null) {
             this.y += 6;
@@ -336,48 +282,138 @@ class Tank {
         ctx.translate(this.x, this.y);
         if (this.id === 2) ctx.scale(-1, 1);
 
-        // 차체 세밀 드로잉
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(-18, -2, 36, 6);
-        ctx.fillStyle = this.color;
-        ctx.fillRect(-14, -12, 28, 10);
-
         const rad = this.angle * Math.PI / 180;
-        ctx.strokeStyle = '#f8fafc';
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(0, -8);
-        ctx.lineTo(Math.cos(rad) * 26, -8 - Math.sin(rad) * 26);
-        ctx.stroke();
 
+        if (this.type === 'CATAPULT') {
+            // [인민탱크] 투석기 형태
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath(); ctx.roundRect(-22, -3, 44, 11, 5); ctx.fill();
+            ctx.fillStyle = '#854d0e';
+            ctx.fillRect(-14, -14, 28, 11);
+            ctx.strokeStyle = '#a16207'; ctx.lineWidth = 6;
+            ctx.beginPath(); ctx.moveTo(-6, -10); ctx.lineTo(Math.cos(rad) * 28, -10 - Math.sin(rad) * 28); ctx.stroke();
+
+        } else if (this.type === 'CANNON') {
+            // [캐논] 붉은 돔 포탑 & 롱 캐논
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath(); ctx.roundRect(-20, -2, 40, 11, 5); ctx.fill();
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath(); ctx.arc(0, -5, 16, Math.PI, 0); ctx.fill();
+            ctx.strokeStyle = '#7f1d1d'; ctx.lineWidth = 2; ctx.stroke();
+            ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(0, -6); ctx.lineTo(Math.cos(rad) * 34, -6 - Math.sin(rad) * 34); ctx.stroke();
+
+        } else if (this.type === 'MISSILE') {
+            // [유도탱크] 블루 미사일 포대
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath(); ctx.roundRect(-22, -3, 44, 11, 5); ctx.fill();
+            ctx.fillStyle = '#0284c7';
+            ctx.beginPath(); ctx.roundRect(-16, -16, 32, 13, 4); ctx.fill();
+            ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(0, -10); ctx.lineTo(Math.cos(rad) * 30, -10 - Math.sin(rad) * 30); ctx.stroke();
+
+        } else if (this.type === 'DUKE') {
+            // [듀크탱크] 중장갑
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath(); ctx.roundRect(-26, -4, 52, 14, 6); ctx.fill();
+            ctx.fillStyle = '#475569';
+            ctx.fillRect(-18, -18, 36, 14);
+            ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 8;
+            ctx.beginPath(); ctx.moveTo(0, -11); ctx.lineTo(Math.cos(rad) * 30, -11 - Math.sin(rad) * 30); ctx.stroke();
+
+        } else if (this.type === 'MULTI') {
+            // [멀티탱크] 그린 다련장 포신
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath(); ctx.roundRect(-20, -3, 40, 11, 5); ctx.fill();
+            ctx.fillStyle = '#16a34a';
+            ctx.beginPath(); ctx.arc(0, -6, 14, Math.PI, 0); ctx.fill();
+            ctx.strokeStyle = '#15803d'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(-2, -8); ctx.lineTo(Math.cos(rad) * 28 - 2, -8 - Math.sin(rad) * 28); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(2, -4); ctx.lineTo(Math.cos(rad) * 28 + 2, -4 - Math.sin(rad) * 28); ctx.stroke();
+
+        } else if (this.type === 'LASER') {
+            // [레이저탱크] SF 세모 포탑
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath(); ctx.roundRect(-20, -3, 40, 11, 5); ctx.fill();
+            ctx.fillStyle = '#0284c7';
+            ctx.beginPath(); ctx.moveTo(-16, -2); ctx.lineTo(0, -18); ctx.lineTo(16, -2); ctx.fill();
+            ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(0, -10); ctx.lineTo(Math.cos(rad) * 32, -10 - Math.sin(rad) * 32); ctx.stroke();
+        }
+
+        ctx.restore();
+    }
+}
+
+/* ── 포탄 클래스 ── */
+class Bullet {
+    constructor(shooterId, x, y, vx, vy, type, wep) {
+        this.shooterId = shooterId;
+        this.x = x; this.y = y;
+        this.vx = vx; this.vy = vy;
+        this.type = type;
+        this.wep = wep;
+        this.age = 0;
+    }
+
+    update(wind, enemy) {
+        this.age++;
+
+        // 유도탄 로직
+        if (this.type === 'MISSILE' && this.wep === 2 && enemy && !enemy.isFallen) {
+            const dist = Math.hypot(enemy.x - this.x, (enemy.y - 10) - this.y);
+            if (dist < 200) {
+                const angle = Math.atan2((enemy.y - 10) - this.y, enemy.x - this.x);
+                const spd = Math.hypot(this.vx, this.vy);
+                this.vx = this.vx * 0.82 + Math.cos(angle) * spd * 0.18;
+                this.vy = this.vy * 0.82 + Math.sin(angle) * spd * 0.18;
+            } else {
+                this.vx += wind * 0.001; this.vy += 0.15;
+            }
+        } else {
+            this.vx += wind * 0.0015;
+            this.vy += 0.15;
+        }
+
+        this.x += this.vx;
+        this.y += this.vy;
+    }
+
+    draw() {
+        ctx.save();
+        if (this.type === 'CANNON' && this.wep === 2) ctx.fillStyle = '#ef4444';
+        else if (this.type === 'DUKE' && this.wep === 2) ctx.fillStyle = '#a855f7';
+        else if (this.type === 'LASER' && this.wep === 2) ctx.fillStyle = '#38bdf8';
+        else if (this.type === 'MISSILE' && this.wep === 2) ctx.fillStyle = '#f59e0b';
+        else ctx.fillStyle = '#fbbf24';
+
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.wep === 2 ? 6 : 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
         ctx.restore();
     }
 }
 
 let p1, p2;
 
-// 💡 포인터 기반 만능 터치/마우스 이벤트 처리기
 function attachPointerEvents(el, onStart, onEnd) {
     if (!el) return;
-
     el.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         el.classList.add('pressed');
         if (onStart) onStart();
     });
-
     const release = (e) => {
         if (e) e.preventDefault();
         el.classList.remove('pressed');
         if (onEnd) onEnd();
     };
-
     el.addEventListener('pointerup', release);
     el.addEventListener('pointerleave', release);
     el.addEventListener('pointercancel', release);
 }
 
-// 로비 버튼
 function setupLobbyBtn(groupId, callback) {
     const btns = document.querySelectorAll(`#${groupId} .opt-btn`);
     btns.forEach(b => {
@@ -393,51 +429,44 @@ setupLobbyBtn('p1Group', val => p1Type = val);
 setupLobbyBtn('p2Group', val => p2Type = val);
 setupLobbyBtn('mapGroup', val => mapType = val);
 
-// 시작 버튼
 attachPointerEvents(document.getElementById('btnStart'), () => {
     document.getElementById('lobby').style.display = 'none';
     document.getElementById('gameArea').style.display = 'block';
     document.getElementById('pad').style.display = 'flex';
 
-    p1 = new Tank(1, p1Type, 200, '#22c55e');
-    p2 = new Tank(2, p2Type, 760, '#ef4444');
+    p1 = new Tank(1, p1Type, 200, '#22c55e', '#14532d');
+    p2 = new Tank(2, p2Type, 760, '#ef4444', '#7f1d1d');
     wind = Math.floor(Math.random() * 11) - 5;
 }, null);
 
-// 조작 패널
 attachPointerEvents(document.getElementById('mLeft'), () => inputs.left = true, () => inputs.left = false);
 attachPointerEvents(document.getElementById('mRight'), () => inputs.right = true, () => inputs.right = false);
 attachPointerEvents(document.getElementById('mUp'), () => inputs.up = true, () => inputs.up = false);
 attachPointerEvents(document.getElementById('mDown'), () => inputs.down = true, () => inputs.down = false);
 
-// 무기 전환
 attachPointerEvents(document.getElementById('mWep'), () => {
     const cur = currentTurn === 1 ? p1 : p2;
     cur.wep = cur.wep === 1 ? 2 : 1;
     document.getElementById('mWep').innerText = `${cur.wep}탄`;
 }, null);
 
-// 발사
 attachPointerEvents(document.getElementById('mFire'), () => {
-    if (!bullet && !isCharging && !gameOver) {
-        isCharging = true;
-        power = 0;
+    if (bullets.length === 0 && !isCharging && !gameOver) {
+        isCharging = true; power = 0;
     }
 }, () => {
     if (isCharging) {
-        isCharging = false;
-        shoot();
+        isCharging = false; shoot();
     }
 });
 
-// 키보드 지원
 window.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') inputs.left = true;
     if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') inputs.right = true;
     if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') inputs.up = true;
     if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') inputs.down = true;
 
-    if (e.key === ' ' && !bullet && !isCharging && !gameOver) {
+    if (e.key === ' ' && bullets.length === 0 && !isCharging && !gameOver) {
         isCharging = true; power = 0;
     }
 });
@@ -456,17 +485,25 @@ window.addEventListener('keyup', e => {
 function shoot() {
     const cur = currentTurn === 1 ? p1 : p2;
     const rad = (cur.id === 2 ? (180 - cur.angle) : cur.angle) * Math.PI / 180;
-    const spd = power * 0.22;
+    const spd = power * 0.23;
 
-    bullet = {
-        shooter: cur.id,
-        x: cur.x + Math.cos(rad) * 25,
-        y: cur.y - 8 - Math.sin(rad) * 25,
-        vx: Math.cos(rad) * spd,
-        vy: -Math.sin(rad) * spd,
-        type: cur.type,
-        wep: cur.wep
-    };
+    if (cur.wep === 2 && cur.type === 'CATAPULT') {
+        // 인민탱크 3연사
+        for (let i = 0; i < 3; i++) {
+            setTimeout(() => {
+                bullets.push(new Bullet(cur.id, cur.x + Math.cos(rad) * 28, cur.y - 10 - Math.sin(rad) * 28, Math.cos(rad) * spd * (1 + (i - 1) * 0.04), -Math.sin(rad) * spd * (1 + (i - 1) * 0.04), cur.type, cur.wep));
+            }, i * 140);
+        }
+    } else if (cur.wep === 2 && cur.type === 'MULTI') {
+        // 멀티탱크 6연사
+        for (let i = 0; i < 6; i++) {
+            setTimeout(() => {
+                bullets.push(new Bullet(cur.id, cur.x + Math.cos(rad) * 28, cur.y - 10 - Math.sin(rad) * 28, Math.cos(rad) * spd * (1 + (Math.random() - 0.5) * 0.08), -Math.sin(rad) * spd * (1 + (Math.random() - 0.5) * 0.08), cur.type, cur.wep));
+            }, i * 90);
+        }
+    } else {
+        bullets.push(new Bullet(cur.id, cur.x + Math.cos(rad) * 28, cur.y - 10 - Math.sin(rad) * 28, Math.cos(rad) * spd, -Math.sin(rad) * spd, cur.type, cur.wep));
+    }
 }
 
 function update() {
@@ -475,7 +512,7 @@ function update() {
     p1.update();
     p2.update();
 
-    if (!bullet && !gameOver) {
+    if (bullets.length === 0 && !gameOver) {
         const cur = currentTurn === 1 ? p1 : p2;
         if (inputs.left) cur.x = Math.max(50, cur.x - 2);
         if (inputs.right) cur.x = Math.min(910, cur.x + 2);
@@ -487,58 +524,48 @@ function update() {
         }
     }
 
-    if (bullet) {
-        const enemy = bullet.shooter === 1 ? p2 : p1;
+    const enemy = currentTurn === 1 ? p2 : p1;
 
-        if (bullet.type === 'MISSILE' && bullet.wep === 2 && !enemy.isFallen) {
-            const dist = Math.hypot(enemy.x - bullet.x, (enemy.y - 8) - bullet.y);
-            if (dist < 200) {
-                const angle = Math.atan2((enemy.y - 8) - bullet.y, enemy.x - bullet.x);
-                const spd = Math.hypot(bullet.vx, bullet.vy);
-                bullet.vx = bullet.vx * 0.85 + Math.cos(angle) * spd * 0.15;
-                bullet.vy = bullet.vy * 0.85 + Math.sin(angle) * spd * 0.15;
-            } else {
-                bullet.vx += wind * 0.001; bullet.vy += 0.15;
-            }
-        } else {
-            bullet.vx += wind * 0.0015;
-            bullet.vy += 0.15;
-        }
+    for (let i = bullets.length - 1; i >= 0; i--) {
+        let b = bullets[i];
+        b.update(wind, enemy);
 
-        bullet.x += bullet.vx;
-        bullet.y += bullet.vy;
+        particles.push({ x: b.x, y: b.y, radius: 2, alpha: 0.6 });
 
-        const gY = getGroundY(bullet.x);
+        const gY = getGroundY(b.x);
         let hit = false;
 
-        if (gY !== null && bullet.y >= gY) hit = true;
-        if (bullet.x < 0 || bullet.x > 960 || bullet.y > 540) hit = true;
+        if (gY !== null && b.y >= gY) hit = true;
+        if (b.x < 0 || b.x > 960 || b.y > 540) {
+            bullets.splice(i, 1);
+            if (bullets.length === 0) endTurn();
+            continue;
+        }
 
         [p1, p2].forEach(p => {
-            if (p.id !== bullet.shooter && !p.isFallen) {
-                if (Math.hypot(p.x - bullet.x, (p.y - 8) - bullet.y) < 20) hit = true;
+            if (p.id !== b.shooterId && !p.isFallen) {
+                if (Math.hypot(p.x - b.x, (p.y - 8) - b.y) < 20) hit = true;
             }
         });
 
         if (hit) {
             [p1, p2].forEach(p => {
-                const d = Math.hypot(p.x - bullet.x, p.y - bullet.y);
-                if (d < 40) {
-                    const dmg = Math.floor((1 - d / 40) * (bullet.wep === 2 ? 45 : 30));
+                const d = Math.hypot(p.x - b.x, p.y - b.y);
+                if (d < 45) {
+                    const dmg = Math.floor((1 - d / 45) * (b.wep === 2 ? 40 : 28));
                     p.hp = Math.max(0, p.hp - dmg);
                 }
             });
 
-            bullet = null;
-            power = 0;
-
-            if (p1.hp <= 0 || p2.hp <= 0 || p1.isFallen || p2.isFallen) {
-                gameOver = true;
-            } else {
-                currentTurn = currentTurn === 1 ? 2 : 1;
-                wind = Math.floor(Math.random() * 11) - 5;
-            }
+            bullets.splice(i, 1);
+            if (bullets.length === 0) endTurn();
         }
+    }
+
+    for (let i = particles.length - 1; i >= 0; i--) {
+        let p = particles[i];
+        p.alpha -= 0.03;
+        if (p.alpha <= 0) particles.splice(i, 1);
     }
 
     document.getElementById('p1Hud').innerText = `P1 HP: ${p1.hp} | 각도: ${p1.angle}°`;
@@ -546,42 +573,52 @@ function update() {
     document.getElementById('centerHud').innerText = `턴: P${currentTurn} | 바람: ${wind} | 파워: ${Math.floor(power)}%`;
 }
 
+function endTurn() {
+    power = 0;
+    if (p1.hp <= 0 || p2.hp <= 0 || p1.isFallen || p2.isFallen) {
+        gameOver = true;
+    } else {
+        currentTurn = currentTurn === 1 ? 2 : 1;
+        wind = Math.floor(Math.random() * 11) - 5;
+    }
+}
+
 function render() {
     let skyGrad = ctx.createLinearGradient(0, 0, 0, cvs.height);
     skyGrad.addColorStop(0, '#0284c7');
     skyGrad.addColorStop(0.6, '#38bdf8');
     skyGrad.addColorStop(1, '#bae6fd');
-    ctx.fillStyle = skyGrad;
-    ctx.fillRect(0, 0, cvs.width, cvs.height);
+    ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, cvs.width, cvs.height);
 
+    // 입체 잔디 지형
     ctx.fillStyle = '#475569';
     ctx.beginPath();
     ctx.moveTo(0, cvs.height);
-    for (let x = 0; x <= cvs.width; x += 5) {
+    for (let x = 0; x <= cvs.width; x += 4) {
         const y = getGroundY(x);
         if (y !== null) ctx.lineTo(x, y);
     }
     ctx.lineTo(cvs.width, cvs.height);
     ctx.fill();
 
-    if (p1) {
-        p1.draw();
-        p2.draw();
-    }
+    ctx.strokeStyle = '#22c55e';
+    ctx.lineWidth = 6;
+    ctx.stroke();
 
-    if (bullet) {
+    particles.forEach(p => {
+        ctx.save(); ctx.globalAlpha = Math.max(0, p.alpha);
         ctx.fillStyle = '#f59e0b';
-        ctx.beginPath();
-        ctx.arc(bullet.x, bullet.y, 5, 0, Math.PI * 2);
-        ctx.fill();
-    }
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+    });
+
+    if (p1) { p1.draw(); p2.draw(); }
+    bullets.forEach(b => b.draw());
 
     if (gameOver) {
         ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
         ctx.fillRect(0, 0, cvs.width, cvs.height);
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 30px Pretendard, sans-serif';
-        ctx.textAlign = 'center';
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 32px Pretendard'; ctx.textAlign = 'center';
         const win = p1.hp > 0 && !p1.isFallen ? 'P1 승리!' : 'P2 승리!';
         ctx.fillText(`🏆 ${win}`, cvs.width / 2, cvs.height / 2);
     }
